@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link href="css/styles.css" rel="stylesheet">
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <header>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">YTRoom</a>
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#" id="create-modal-link">Create</a></li>
+                            <li><a href="#" id="join-modal-link">Join</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div id="sidebar-wrapper">
+            <div class="sidebar">
+                <div id="sidebar-top">
+                    <a id="hide-sidebar" href="#">
+                        <i class="fa fa-angle-double-left"></i>
+                    </a>
+                    <div id="sidebar-title">Title</div>
+                </div>
+
+                <div class="sidebar-buttons">
+
+                    <button id="btn-chat" class="sidebar-button">
+                        <i class="fa fa-comments" aria-hidden="true"></i>
+                    </button>
+                    <button id="btn-queue" class="sidebar-button">
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div id="chat-messages" class="sidebar-panel">
+                    <div id="chat-items">
+                        <p class="triangle-border left">Blah</p>
+                        <p class="triangle-border right">Blah! Blahablahbhlah!</p>
+                    </div>
+                </div>
+
+                <div id="video-queue" class="sidebar-panel">
+                </div>
+
+            </div>
+        </div>
+
+        <div id="content">
+            <div id="player">FDJHKHJFDSHJFHKJkjh</div>
+        </div>
+
+        <!-- jQuery -->
+        <script src="js/jQuery.min.js"></script>
+        <!-- Bootstrap -->
+        <script src="js/bootstrap.min.js"></script>
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
+        <!-- YouTube player API -->
+        <script src="http://www.youtube.com/player_api"></script>
+
+        <script src="js/sidebar.js"></script>
+        <script src="js/ytplayer.js"></script>
+    </body>
+
+</html>

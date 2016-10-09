@@ -42,7 +42,11 @@ $(document).ready(function() {
             // TODO: Make it add the actual watcher to the room
             let thisRoomUsersRef = database.ref("/rooms/" + thisRoom.key.toString()
                 + "/watchers");
-            thisRoomUsersRef.push("Me!");
+
+            thisRoomUsersRef.push(loggedUser.id);
+
+            // redirect page to the created room
+            window.location.href = "room.html";
         }
     });
 });

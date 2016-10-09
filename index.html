@@ -4,6 +4,7 @@
     <head>
         <link href="css/styles.css" rel="stylesheet">
         <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-social.css" rel="stylesheet">
         <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     </head>
 
@@ -32,11 +33,37 @@
             </nav>
         </header>
 
-        <div class="container">
-            <div class="row">
-                <div class="jumbotron">
-                    <h1 class="display-3">You're good to go</h1>
-                    <p class="lead">You can now create a room, or join an existing one.</p>
+        <div id="login-window">
+            <div class="container">
+                <div class="row">
+                    <div class="jumbotron">
+                        <h1 class="display-3">Login</h1>
+                        <p class="lead">You can log in using an existing account through one of these services.</p>
+                        <hr class="m-y-2">
+                        <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <a id="github-login" class="btn btn-block btn-social btn-github">
+                                <span class="fa fa-github"></span> Sign in with Github
+                            </a>
+                            <a id="google-login" class="btn btn-block btn-social btn-google">
+                                <span class="fa fa-google"></span> Sign in with Google
+                            </a>
+                        </div>
+                        <div class="col-md-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="good-to-go-window" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <div class="jumbotron">
+                        <h1 class="display-3">You're good to go</h1>
+                        <p class="lead">You can now create a room, or join an existing one.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,6 +98,28 @@
                 </div>
             </div>
         </div>
+        <!-- modal for room generated -->
+        <div class="modal fade" id="after-create-modal" tabindex="-1" role="dialog" aria-labelledby="after-create-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="after-create-modal-label">Room Created!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Your room has been created!<br>It has been assigned a unique ID. 
+                            Anyone who wishes to enter this room must know this.
+                        </p>
+                        <p class="bg-primary" id="random-id"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- jQuery -->
         <script src="js/jQuery.min.js"></script>
@@ -79,6 +128,7 @@
         <!-- Firebase -->
         <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
 
+        <script src="js/auth.js"></script>
         <script src="js/sidebar.js"></script>
         <script src="js/rooms.js"></script>
     </body>

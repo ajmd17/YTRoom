@@ -1,3 +1,7 @@
+let auth = null;
+let database = null;
+let loggedUser = {};
+
 $(document).ready(function() {
     // Initialize Firebase
     let config = {
@@ -10,8 +14,8 @@ $(document).ready(function() {
 
     firebase.initializeApp(config);
 
-    let auth = new firebase.auth();
-    let database = new firebase.database();
+    auth = new firebase.auth();
+    database = new firebase.database();
 
     $("#google-login").click(function() { 
         signInWithGoogle(auth, database); 
@@ -22,8 +26,6 @@ $(document).ready(function() {
 
 function signInWithGoogle(auth, database) {
     let provider = new firebase.auth.GoogleAuthProvider();
-
-    let loggedUser = {};
 
     auth.signInWithPopup(provider).then(function(result) {
         
@@ -40,12 +42,11 @@ function signInWithGoogle(auth, database) {
 
             let res = usersRef.push(loggedUser);
             loggedUser.id = res.key;
-
-            console.log("Success");
+            
             console.log(loggedUser);
 
-            // redirect to main page
-            window.location.href = "index.html";
+            $("#login-window").hide();
+            $("#good-to-go-window").show();
         });
 
     }).catch(function(error) {

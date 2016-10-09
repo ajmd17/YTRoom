@@ -32,40 +32,42 @@
             </nav>
         </header>
 
-        <div id="sidebar-wrapper">
-            <div class="sidebar">
-                <div id="sidebar-top">
-                    <a id="hide-sidebar" href="#">
-                        <i class="fa fa-angle-double-left"></i>
-                    </a>
-                    <div id="sidebar-title">Title</div>
-                </div>
-
-                <div class="sidebar-buttons">
-
-                    <button id="btn-chat" class="sidebar-button">
-                        <i class="fa fa-comments" aria-hidden="true"></i>
-                    </button>
-                    <button id="btn-queue" class="sidebar-button">
-                        <i class="fa fa-list" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <div id="chat-messages" class="sidebar-panel">
-                    <div id="chat-items">
-                        <p class="triangle-border left">Blah</p>
-                        <p class="triangle-border right">Blah! Blahablahbhlah!</p>
+        <div id="room-content" style="display:none;">
+            <div id="sidebar-wrapper">
+                <div class="sidebar">
+                    <div id="sidebar-top">
+                        <a id="hide-sidebar" href="#">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                        <div id="sidebar-title">Title</div>
                     </div>
-                </div>
 
-                <div id="video-queue" class="sidebar-panel">
-                </div>
+                    <div class="sidebar-buttons">
 
+                        <button id="btn-chat" class="sidebar-button">
+                            <i class="fa fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button id="btn-queue" class="sidebar-button">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <div id="chat-messages" class="sidebar-panel">
+                        <div id="chat-items">
+                            <p class="triangle-border left">Blah</p>
+                            <p class="triangle-border right">Blah! Blahablahbhlah!</p>
+                        </div>
+                    </div>
+
+                    <div id="video-queue" class="sidebar-panel">
+                    </div>
+
+                </div>
             </div>
-        </div>
 
-        <div id="content">
-            <div id="player">FDJHKHJFDSHJFHKJkjh</div>
+            <div id="content">
+                <div id="player"></div>
+            </div>
         </div>
 
         <!-- jQuery -->
@@ -79,6 +81,7 @@
 
         <script src="js/sidebar.js"></script>
         <script src="js/ytplayer.js"></script>
+        <script src="js/room.js"></script>
     </body>
 
 </html>

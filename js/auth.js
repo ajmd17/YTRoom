@@ -1,6 +1,6 @@
+let loggedUser = {};
 let auth = null;
 let database = null;
-let loggedUser = {};
 
 $(document).ready(function() {
     // Initialize Firebase

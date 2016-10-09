@@ -4,7 +4,7 @@ var youtubeVideoId;
 var player = null;
 var youtubePlayerLoaded = false;
 
-$(function() {
+function loadYouTubePlayer() {
     // try parsing youtube video id from the given url
     $("#submit-youtube-url-button").click(function() {
         var givenUrl = $("#youtube-url").val();
@@ -23,7 +23,7 @@ $(function() {
             player.loadVideoById(youtubeVideoId);
         }
     });
-});
+}
 
 function onYouTubePlayerAPIReady() {
     player = new YT.Player('player', {

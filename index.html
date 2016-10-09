@@ -41,16 +41,16 @@
                         <p class="lead">You can log in using an existing account through one of these services.</p>
                         <hr class="m-y-2">
                         <div class="row">
-                        <div class="col-md-4"></div>
-                        <div class="col-md-4">
-                            <a id="github-login" class="btn btn-block btn-social btn-github">
-                                <span class="fa fa-github"></span> Sign in with Github
-                            </a>
-                            <a id="google-login" class="btn btn-block btn-social btn-google">
-                                <span class="fa fa-google"></span> Sign in with Google
-                            </a>
-                        </div>
-                        <div class="col-md-4"></div>
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <a id="github-login" class="btn btn-block btn-social btn-github">
+                                    <span class="fa fa-github"></span> Sign in with Github
+                                </a>
+                                <a id="google-login" class="btn btn-block btn-social btn-google">
+                                    <span class="fa fa-google"></span> Sign in with Google
+                                </a>
+                            </div>
+                            <div class="col-md-4"></div>
                         </div>
                     </div>
                 </div>
@@ -65,6 +65,45 @@
                         <p class="lead">You can now create a room, or join an existing one.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="room-content" style="display: none;">
+            <div id="sidebar-wrapper">
+                <div class="sidebar">
+                    <div id="sidebar-top">
+                        <a id="hide-sidebar" href="#">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                        <div id="sidebar-title">Title</div>
+                    </div>
+
+                    <div class="sidebar-buttons">
+
+                        <button id="btn-chat" class="sidebar-button">
+                            <i class="fa fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button id="btn-queue" class="sidebar-button">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <div id="chat-messages" class="sidebar-panel">
+                        <div id="chat-items"> </div>
+
+                        <div id="chat-input-area">
+                            <input type="text" id="chat-box">
+                        </div>
+                    </div>
+
+                    <div id="video-queue" class="sidebar-panel">
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="content">
+                <div id="player"></div>
             </div>
         </div>
 
@@ -115,7 +154,35 @@
                         <p class="bg-primary" id="random-id"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="go-to-room-btn">Go to room</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- modal for joining a room -->
+        <div class="modal fade" id="join-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="join-modal-label">Join Room</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="room-join-error" class="alert alert-danger" style="display:none;">
+                            <strong>Error: </strong> Could not join room.
+                        </div>
+                        <p>Enter the room's key to join it.
+                        </p>
+                        <div class="form-group">
+                            <label for="room-key">Key:</label>
+                            <input type="text" class="form-control" id="room-key">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="join-room-btn">Join</button>
                     </div>
                 </div>
             </div>
@@ -128,9 +195,15 @@
         <!-- Firebase -->
         <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
 
+        
+        <script src="js/ytplayer.js"></script>
+
+        <!-- YouTube player API -->
+        <script src="http://www.youtube.com/player_api"></script>
+
         <script src="js/auth.js"></script>
         <script src="js/sidebar.js"></script>
-        <script src="js/rooms.js"></script>
+        <script src="js/create_join.js"></script>
     </body>
 
 </html>

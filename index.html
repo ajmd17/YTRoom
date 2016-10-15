@@ -2,7 +2,9 @@
 <html>
 
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link href="css/styles.css" rel="stylesheet">
+        <link href="css/test-chat.css" rel="stylesheet">
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/bootstrap-social.css" rel="stylesheet">
         <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
@@ -80,10 +82,10 @@
 
                     <div class="sidebar-buttons">
 
-                        <button id="btn-chat" class="sidebar-button">
+                        <button id="btn-chat" class="sidebar-button popup-btn">
                             <i class="fa fa-comments" aria-hidden="true"></i>
                         </button>
-                        <button id="btn-queue" class="sidebar-button">
+                        <button id="btn-queue" class="sidebar-button popup-btn">
                             <i class="fa fa-list" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -91,12 +93,17 @@
                     <div id="chat-messages" class="sidebar-panel">
                         <div id="chat-items"> </div>
 
-                        <div id="chat-input-area">
-                            <input type="text" id="chat-box">
+                        <div class="chat-control">
+                            <input class="chat-input" type="text" placeholder="enter your message" id="sidebar-send-txt">
+                            <button class="popup-btn send-btn" id="sidebar-send-btn">Send</button>
                         </div>
+
+
                     </div>
 
                     <div id="video-queue" class="sidebar-panel">
+                        <ul id="queue-items"> </ul>
+                        <button class="popup-btn" style="margin: 0 auto;" id="add-to-queue-btn">Add Video</button>
                     </div>
 
                 </div>
@@ -188,6 +195,52 @@
             </div>
         </div>
 
+        <!-- modal to add item to queue -->
+        <div class="modal fade" id="add-video-modal" tabindex="-1" role="dialog" aria-labelledby="add-video-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="create-modal-label">Add Video to Queue</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="video-input-error" class="alert alert-danger" style="display:none;">
+                            <strong>Error: </strong> Invalid video url.
+                        </div>
+                        <div class="form-group" id="youtube-video-entry">
+                            <label for="inputlg">Enter the video's URL:</label>
+                            <input class="form-control input-lg" id="youtube-url" type="text">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="add-video-modal-btn">Add Video</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- chat modal for mobile screens -->
+        <div class="modal fade" id="chat-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Chat</h4>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- jQuery -->
         <script src="js/jQuery.min.js"></script>
         <!-- Bootstrap -->
@@ -195,7 +248,7 @@
         <!-- Firebase -->
         <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
 
-        
+
         <script src="js/ytplayer.js"></script>
 
         <!-- YouTube player API -->

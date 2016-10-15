@@ -22,6 +22,14 @@ $(document).ready(function() {
     });
 
     $("#github-login").click(signInWithGithub);
+
+
+    // for testing!!!
+
+/*
+            $("#login-window").hide();
+            $("#good-to-go-window").hide();
+            $("#room-content").show();*/
 });
 
 function signInWithGoogle(auth, database) {
@@ -50,8 +58,7 @@ function signInWithGoogle(auth, database) {
         });
 
     }).catch(function(error) {
-        console.log("Error!");
-        console.log(error);
+        alert(error.toString());
     });
 }
 

@@ -1,6 +1,6 @@
 // global variable for current video id
 var youtubeVideoId;
-let prevState = -1;
+var prevState = -1;
 
 var player = null;
 var youtubePlayerLoaded = false;
@@ -75,7 +75,8 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-    console.log("state change: " + player.getPlayerState().toString());
+    console.log("state change: ");
+    console.log(event);
     if (stateHandler == undefined || stateHandler == null) {
         console.log("stateHandler not defined");
         return;
@@ -83,11 +84,17 @@ function onPlayerStateChange(event) {
     
     // alert the server that the video state has changed
 
-    if (prevState == 1 && player.getPlayerState() == 2 /*paused*/) {
-        stateHandler(player.getCurrentTime(), "paused");
-    } else if (prevState == 2 && player.getPlayerState() == 1 /*playing*/) {
-        stateHandler(player.getCurrentTime(), "playing");
-    }
+    var currentState = event.data;
+    console.log("prevState = " + prevState.toString());
+    console.log("currentState = " + currentState.toString());
 
-    prevState = player.getPlayerState();
+    if ((prevState == -1 || prevState == 1) && currentState == 2 /*paused*/) {
+        console.log("User paused");
+        stateHandler(player.getCurrentTime(), "paused");
+        prevState = currentState;
+    } else if ((prevState == -1 || prevState == 2) && currentState == 1 /*playing*/) {
+        stateHandler(player.getCurrentTime(), "playing");
+        console.log("User played");
+        prevState = currentState;
+    }
 }

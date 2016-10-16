@@ -329,18 +329,22 @@ function loadRoomContent() {
             } else if (!youtubePlayerLoaded) {
                 console.log("Error, YouTube player not loaded!");
             } else {
-                player.loadVideoById(newVideoId);
-                // seek to location
-                player.seekTo(newVideoTime, true /*seek ahead*/);
+                sendEvents = false;
+                player.cueVideoById(newVideoId);
+                console.log("Server video state: " + newVideoState.toString());
 
-                if (newVideoState == "playing") {
+                if (newVideoState == "playing" && player.getPlayerState() != 1) {
                     // auto play
-                    sendEvents = false;
+                    console.log("PLAY");
                     player.playVideo();
-                } else if (newVideoState == "paused") {
-                    sendEvents = false;
+                    // seek to location
+                    player.seekTo(newVideoTime, true /*seek ahead*/);
+                } else if (newVideoState == "paused" && player.getPlayerState() != 2) {
+                    console.log("PAUSE");
+                    player.seekTo(newVideoTime, true /*seek ahead*/);
                     player.pauseVideo();
                 }
+                sendEvents = true;
             }
         }
     });
@@ -370,9 +374,8 @@ function stateHandler(playerTime, playerState) {
         // send to server
         currentVideoInfoRef.update({
             "time": playerTime,
-            "videoState": playerState
+            "videoState": playerState.toString()
         });
     }
-
-    sendEvents = true;
+    //sendEvents = true;
 }

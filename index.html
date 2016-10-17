@@ -2,6 +2,7 @@
 <html>
 
     <head>
+        <title>YTRoom</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link href="css/styles.css" rel="stylesheet">
         <link href="css/test-chat.css" rel="stylesheet">
@@ -88,17 +89,20 @@
                         <button id="btn-queue" class="sidebar-button popup-btn">
                             <i class="fa fa-list" aria-hidden="true"></i>
                         </button>
+                        <button id="btn-users" class="sidebar-button popup-btn">
+                            <i class="fa fa-users" aria-hidden="true"></i>
+                        </button>
+                        <button id="btn-video-state" class="sidebar-button popup-btn">
+                            <i id="i-video-state" class="fa fa-pause" aria-hidden="true" style="color:gray"></i>
+                        </button>
                     </div>
 
                     <div id="chat-messages" class="sidebar-panel">
                         <div id="chat-items"> </div>
-
                         <div class="chat-control">
                             <input class="chat-input" type="text" placeholder="enter your message" id="sidebar-send-txt">
                             <button class="popup-btn send-btn" id="sidebar-send-btn">Send</button>
                         </div>
-
-
                     </div>
 
                     <div id="video-queue" class="sidebar-panel">
@@ -231,6 +235,25 @@
                         <span aria-hidden="true">&times;</span>
                         </button>
                         <h4 class="modal-title">Chat</h4>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- queue modal for mobile screens -->
+        <div class="modal fade" id="queue-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Queue</h4>
                     </div>
                     <div class="modal-body">
                     </div>

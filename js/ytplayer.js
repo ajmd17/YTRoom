@@ -17,12 +17,6 @@ function loadYouTubePlayer() {
         // insert the element into the DOM
         var firstScriptTag = document.getElementsByTagName("script")[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        if (youtubePlayerLoaded) {
-            // the button was pressed after original
-            // load, so load the new video
-            player.loadVideoById(youtubeVideoId);
-        }
     });
 }
 
@@ -32,7 +26,7 @@ function onYouTubePlayerAPIReady() {
         width: '100%',
         playerVars: {
             controls: 0,
-            modestbranding: 1,
+            modestbranding: 0,
         }, 
         videoId: youtubeVideoId,
         events: {
@@ -89,10 +83,23 @@ function onPlayerStateChange(event) {
     console.log("currentState = " + currentState.toString());
 
     if ((prevState == -1 || prevState == 1) && currentState == 2 /*paused*/) {
+        if ($("#i-video-state").hasClass("fa-play")) {
+            $("#i-video-state").removeClass("fa-play");
+            $("#i-video-state").addClass("fa-pause");
+            $("#i-video-state").css({ "color": "gray" });
+        }
+
         console.log("User paused");
         stateHandler(player.getCurrentTime(), "paused");
         prevState = currentState;
     } else if ((prevState == -1 || prevState == 2) && currentState == 1 /*playing*/) {
+        if ($("#i-video-state").hasClass("fa-pause")) {
+            $("#i-video-state").removeClass("fa-pause");
+            $("#i-video-state").addClass("fa-play");
+            $("#i-video-state").css({ "color": "#00e673" });
+        }
+
+        //alert("The video title is: " +  event.target.getVideoData().title);
         stateHandler(player.getCurrentTime(), "playing");
         console.log("User played");
         prevState = currentState;

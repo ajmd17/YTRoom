@@ -5,6 +5,8 @@ $(window).resize(function() {
 $(window).on("orientationchange", function() {
     // remove sidebar
     if ($(".sidebar").hasClass("opened")) {
+        // re-show content incase it was hidden
+        $("#content").show();
         $(".sidebar").removeClass("opened");
         $(".sidebar-panel").css({ "width": "0", "display": "none" });
     }
@@ -18,16 +20,21 @@ $(document).ready(function() {
     $("#btn-chat").click(function() {
         // on mobile displays, show a modal
         if (window.innerWidth <= 600) {
-            $("#chat-modal").modal("show");
-        } else {
-            $("#sidebar-title").text("Chat");
-            $(".sidebar").addClass("opened");
-            $("#chat-messages").css({ "width": "100%", "display": "block" });
-
-            resizeContent();
+            $("#content").hide();
         }
+        
+        $("#sidebar-title").text("Chat");
+        $(".sidebar").addClass("opened");
+        $("#chat-messages").css({ "width": "100%", "display": "block" });
+
+        resizeContent();
     });
     $("#btn-queue").click(function() {
+        // on mobile displays, show a modal
+        if (window.innerWidth <= 600) {
+            $("#content").hide();
+        }
+        
         $("#sidebar-title").text("Queue");
         $(".sidebar").addClass("opened");
         $("#video-queue").css({ "width": "100%", "display": "block" });
@@ -39,6 +46,8 @@ $(document).ready(function() {
         $(".sidebar").removeClass("opened");
         $(".sidebar-panel").css({ "width": "0", "display": "none" });
 
+        $("#content").show();
+
         resizeContent();
     });
 });
@@ -48,7 +57,6 @@ function resizeChat() {
     let maxHeight = (windowHeight - 210).toString() + "px";
     $("#chat-items").css({ "max-height": maxHeight });
     $("#chat-items").css({ "height": maxHeight });
-    //$("#chat-control").css({ "margin-top": maxHeight.toString() + "px" });
 }
 
 function resizeContent() {
@@ -58,7 +66,7 @@ function resizeContent() {
     // for desktop devices, use browser window size.
     let playerWidth = screen.width > 600 ? window.innerWidth : screen.width;// > 600 ? windowWidth : windowWidth / 2;
     let playerHeight = screen.width > 600 ? window.innerHeight : screen.height;// > 600 ? windowWidth : windowWidth / 2;
-    let openedWidth = window.innerWidth > 600 ? 320 : 160;
+    let openedWidth = window.innerWidth > 600 ? 320 : window.innerWidth /*full width*/;
     let closedWidth = 60;
 
     let windowWidth = window.innerWidth;
@@ -68,6 +76,13 @@ function resizeContent() {
     $("#content").css({ "height": maxHeight });
 
     if ($(".sidebar").hasClass("opened")) {
+        if (playerWidth > 600) {
+            // re-show content incase it was hidden
+            $("#content").show();
+        } else {
+            $("#content").hide();
+        }
+
         $("#sidebar-wrapper").css({ "width": openedWidth.toString() + "px" });
         $("#content").css({ "margin-left": openedWidth.toString() + "px" });
         $("#content").css({ "width": (playerWidth - openedWidth).toString() + "px" });

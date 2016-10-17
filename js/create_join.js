@@ -1,3 +1,4 @@
+// should video play/pause events be sent to the server
 let sendEvents = true;
 
 function generateRoomId() {
@@ -44,6 +45,11 @@ $(document).ready(function() {
             // TODO: Make it add the actual watcher to the room
             let thisRoomUsersRef = database.ref("/rooms/" + thisRoom.key.toString()
                 + "/watchers");
+
+            // update the current room property
+            let usersRef = database.ref("/users");
+            loggedUser.currentRoomKey = thisRoom.key.toString();
+            usersRef.update(loggedUser);
 
             thisRoomUsersRef.push(loggedUser.id);
         }
@@ -112,9 +118,6 @@ $(document).ready(function() {
 
                         thisRoomUsersRef.push(loggedUser.id);
 
-                        // navigate to url
-                        //window.location.href = "room.html";
-
                         // show the room content
                         $("#good-to-go-window").hide();
                         $("#room-content").show();
@@ -170,41 +173,6 @@ $(document).ready(function() {
                 videoId: youtubeVideoId
             });
 
-
-
-
-            // add the list item to the list of playlist items
-            // wtf closures??
-            // THIS SHOULD BE MOVED TO VIDEO LOADING 
-            /*(function(videoId) { 
-                $("#queue-items").append(
-                    $("<li>").append(
-                        // append the click function to switch the video
-                        $("<a>").click(function() {
-                            // TODO: Add code to sync active video with the server
-
-                            // set to active upon click
-                            if (!$(this).parent().hasClass("active")) {
-                                // Remove the class from anything that is active
-                                $("li.active").removeClass("active");
-                                // And make this active
-                                $(this).parent().addClass("active");
-                            }
-
-                            
-                            if (player === null) {
-                                console.log("Error, player was null!");
-                            } else if (!youtubePlayerLoaded) {
-                                console.log("Error, YouTube player not loaded!");
-                            } else {
-                                player.loadVideoById(videoId);
-                            }
-
-                        }).append(videoTitle) // append the text
-                    )
-                ) 
-            })(youtubeVideoId);*/
-
             // close this modal
             $("#add-video-modal").modal("hide");
         }
@@ -247,22 +215,6 @@ function loadRoomContent() {
                             ${ body } <sub>Sent by ${senderName}</sub>
                         </div>`);
                 }
-
-                // add message element
-                // get user's display name
-                /*let userName = "unknown";
-
-                let userRef = database.ref("/users/" + senderId.toString());
-                userRef.once("value").then(function(snapshot) {
-                    let snapshotValue = snapshot.val();
-
-                    if (snapshotValue != undefined && snapshotValue != null) {
-
-                    }
-                }).catch(function(error) {
-                    console.log("Error:");
-                    console.log(error);
-                });*/
             }
 
             // scroll to bottom of messages
@@ -284,11 +236,13 @@ function loadRoomContent() {
             for (let i = 0; i < keys.length; i++) {
                 let msg = snapshotValue[keys[i]];
                 let videoId = msg.videoId;
+                let videoTitle = getVideoTitle(videoId);
                 
                 $("#queue-items").append(
                     $("<li>").append(
                         $("<a>").click(function() {
                             // add click event to switch the video
+
 
                             // set to active
                             if (!$(this).parent().hasClass("active")) {
@@ -305,7 +259,7 @@ function loadRoomContent() {
                                 "videoState": "playing"
                             });
 
-                        }).append(videoId.toString())));
+                        }).append(videoTitle)));
 
             }
 
@@ -335,12 +289,11 @@ function loadRoomContent() {
 
                 if (newVideoState == "playing" && player.getPlayerState() != 1) {
                     // auto play
-                    console.log("PLAY");
                     player.playVideo();
                     // seek to location
                     player.seekTo(newVideoTime, true /*seek ahead*/);
+
                 } else if (newVideoState == "paused" && player.getPlayerState() != 2) {
-                    console.log("PAUSE");
                     player.seekTo(newVideoTime, true /*seek ahead*/);
                     player.pauseVideo();
                 }
@@ -378,4 +331,27 @@ function stateHandler(playerTime, playerState) {
         });
     }
     //sendEvents = true;
+}
+
+function getVideoTitle(videoId) {
+
+    // get title
+    let youTubeURL = "https://www.googleapis.com/youtube/v3/videos?id="+ 
+        videoId.toString() + "&key=" + "AIzaSyDN6w-48JzA4iqou6PqZAob7j6LrTtU0MQ" + "&part=snippet";
+
+    let json = (function() {
+        let json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': youTubeURL,
+            'dataType': "json",
+            'success': function(data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+    return json.items[0].snippet.title;
 }

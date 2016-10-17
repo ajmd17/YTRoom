@@ -71,12 +71,12 @@ function resizeContent() {
 
     let windowWidth = window.innerWidth;
     let windowHeight = window.innerHeight;
-    let maxHeight = (playerHeight - $("nav").height()).toString() + "px";
+    let maxHeight = (windowHeight - $("nav").height()).toString() + "px";
     $("#sidebar-wrapper").css({ "height": maxHeight });
     $("#content").css({ "height": maxHeight });
 
     if ($(".sidebar").hasClass("opened")) {
-        if (playerWidth > 600) {
+        if (window.innerWidth > 600) {
             // re-show content incase it was hidden
             $("#content").show();
         } else {

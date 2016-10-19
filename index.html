@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link href="css/styles.css" rel="stylesheet">
         <link href="css/test-chat.css" rel="stylesheet">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap2.min.css" rel="stylesheet">
         <link href="css/bootstrap-social.css" rel="stylesheet">
         <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     </head>
@@ -71,6 +71,17 @@
             </div>
         </div>
 
+        <div id="welcome-back-window" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <div class="jumbotron">
+                        <h1 class="display-3">Welcome back!</h1>
+                        <p class="lead">You can now create a room, or join an existing one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="room-content" style="display: none;">
             <div id="sidebar-wrapper">
                 <div class="sidebar">
@@ -114,6 +125,12 @@
             </div>
 
             <div id="content">
+                <div id="paused-bg" style="display: none;">
+                    <div id="paused-text">
+                        Paused<br>
+                        Click here to play
+                    </div>
+                </div>
                 <div id="player"></div>
             </div>
         </div>
@@ -159,7 +176,7 @@
                         <h4 class="modal-title" id="after-create-modal-label">Room Created!</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Your room has been created!<br>It has been assigned a unique ID. 
+                        <p>Your room has been created!<br>It has been assigned a unique ID.
                             Anyone who wishes to enter this room must know this.
                         </p>
                         <p class="bg-primary" id="random-id"></p>

@@ -6,6 +6,13 @@ function generateRoomId() {
 }
 
 $(document).ready(function() {
+    $("#content").click(function() {
+        // if we get the #content's click event it means
+        // that the youtube player element is hidden, by pausing it.
+        // therefore, play the youtube video.
+        player.playVideo();
+    });
+
     $("#create-modal-link").click(function() {
         // hide the error, in the case that it was previously visible
         $("#room-name-error").hide();
@@ -57,8 +64,8 @@ $(document).ready(function() {
 
     $("#go-to-room-btn").click(function() {
         // redirect page to the created room
-        //window.location.href = "room.html";
         $("#good-to-go-window").hide();
+        $("#welcome-back-window").hide();
         $("#room-content").show();
         loadRoomContent();
     });
@@ -120,6 +127,7 @@ $(document).ready(function() {
 
                         // show the room content
                         $("#good-to-go-window").hide();
+                        $("#welcome-back-window").hide();
                         $("#room-content").show();
                         loadRoomContent();
 
@@ -189,12 +197,11 @@ function loadRoomContent() {
 
     // message listener
     messagesRef.on("value", function(snapshot) {
+        // clear the html of the chat items
         $("#chat-items").html("");
 
         let snapshotValue = snapshot.val();
-        if (snapshotValue == undefined || snapshotValue == null) {
-            // no messages to load
-        } else {
+        if (snapshotValue) {
             let keys = Object.keys(snapshotValue);
 
             for (let i = 0; i < keys.length; i++) {
@@ -228,22 +235,18 @@ function loadRoomContent() {
         $("#queue-items").html("");
 
         let snapshotValue = snapshot.val();
-        if (snapshotValue == undefined || snapshotValue == null) {
-            // nothing to load
-        } else {
+        if (snapshotValue) {
             let keys = Object.keys(snapshotValue);
 
             for (let i = 0; i < keys.length; i++) {
                 let msg = snapshotValue[keys[i]];
                 let videoId = msg.videoId;
                 let videoTitle = getVideoTitle(videoId);
-                
+
                 $("#queue-items").append(
                     $("<li>").append(
                         $("<a>").click(function() {
                             // add click event to switch the video
-
-
                             // set to active
                             if (!$(this).parent().hasClass("active")) {
                                 // Remove the class from any other that are active
@@ -252,15 +255,15 @@ function loadRoomContent() {
                                 $(this).parent().addClass("active");
                             }
 
-                            // send to server
+                            // send to server the current video info
                             currentVideoInfoRef.update({
                                 "videoId": videoId.toString(),
                                 "time": 0,
                                 "videoState": "playing"
                             });
-
-                        }).append(videoTitle)));
-
+                        }).append(videoTitle)
+                    )
+                );
             }
 
             // scroll to bottom of messages
@@ -271,12 +274,11 @@ function loadRoomContent() {
     // current video info change listener
     currentVideoInfoRef.on("value", function(snapshot) {
         let snapshotValue = snapshot.val();
-        if (snapshotValue == undefined || snapshotValue == null) {
-            // nothing to load
-        } else {
+        if (snapshotValue) {
             let newVideoId = snapshotValue.videoId;
             let newVideoTime = parseInt(snapshotValue.time);
             let newVideoState = snapshotValue.videoState;
+            let actionTriggeredBy = snapshotValue.actionTriggeredBy;
 
             if (player === null) {
                 console.log("Error, player was null!");
@@ -285,17 +287,24 @@ function loadRoomContent() {
             } else {
                 sendEvents = false;
                 player.cueVideoById(newVideoId);
-                console.log("Server video state: " + newVideoState.toString());
 
-                if (newVideoState == "playing" && player.getPlayerState() != 1) {
-                    // auto play
+                if (newVideoState == "playing") {
                     player.playVideo();
                     // seek to location
-                    player.seekTo(newVideoTime, true /*seek ahead*/);
+                    player.seekTo(newVideoTime, true);
 
-                } else if (newVideoState == "paused" && player.getPlayerState() != 2) {
-                    player.seekTo(newVideoTime, true /*seek ahead*/);
+                    // show the 'paused' background
+                    $("#paused-bg").hide();
+
+                } else if (newVideoState == "paused") {
+                    player.seekTo(newVideoTime, true);
                     player.pauseVideo();
+
+                    // show the 'paused' background
+                    $("#paused-bg").show();
+                    $("#paused-text").html(`
+                        Paused by <b>${actionTriggeredBy}</b>.<br>
+                        Click here to resume.`);
                 }
                 sendEvents = true;
             }
@@ -303,18 +312,17 @@ function loadRoomContent() {
     });
 }
 
+// send a chat message to the room
 function sendMessage(msg) {
     let currentRoomKey = loggedUser.currentRoomKey;
     let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
     let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
 
-    let message = {
+    messagesRef.push({
         sender: loggedUser.id,
         senderName: loggedUser.name,
         body: msg
-    };
-
-    messagesRef.push(message);
+    });
 }
 
 function stateHandler(playerTime, playerState) {
@@ -327,31 +335,28 @@ function stateHandler(playerTime, playerState) {
         // send to server
         currentVideoInfoRef.update({
             "time": playerTime,
-            "videoState": playerState.toString()
+            "videoState": playerState.toString(),
+            "actionTriggeredBy": loggedUser.name.toString()
         });
     }
-    //sendEvents = true;
 }
 
 function getVideoTitle(videoId) {
-
     // get title
-    let youTubeURL = "https://www.googleapis.com/youtube/v3/videos?id="+ 
+    let youtubeUrl = "https://www.googleapis.com/youtube/v3/videos?id="+
         videoId.toString() + "&key=" + "AIzaSyDN6w-48JzA4iqou6PqZAob7j6LrTtU0MQ" + "&part=snippet";
 
-    let json = (function() {
-        let json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': youTubeURL,
-            'dataType': "json",
-            'success': function(data) {
-                json = data;
-            }
-        });
-        return json;
-    })();
+    let json = null;
+
+    $.ajax({
+        "async": false,
+        "global": false,
+        "url": youtubeUrl,
+        "dataType": "json",
+        "success": function(data) {
+            json = data;
+        }
+    });
 
     return json.items[0].snippet.title;
 }

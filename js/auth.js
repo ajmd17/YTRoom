@@ -1,4 +1,5 @@
 let loggedUser = {};
+
 let auth = null;
 let database = null;
 
@@ -17,44 +18,39 @@ $(document).ready(function() {
     auth = new firebase.auth();
     database = new firebase.database();
 
-    $("#google-login").click(function() { 
-        signInWithGoogle(auth, database); 
+    $("#google-login").click(function() {
+        signInWithGoogle(auth, database);
     });
 
     $("#github-login").click(signInWithGithub);
-
-
-    // for testing!!!
-
-/*
-            $("#login-window").hide();
-            $("#good-to-go-window").hide();
-            $("#room-content").show();*/
 });
 
 function signInWithGoogle(auth, database) {
     let provider = new firebase.auth.GoogleAuthProvider();
 
     auth.signInWithPopup(provider).then(function(result) {
-        
         let usersRef = database.ref("/users");
         let token = result.credential.accessToken;
         let user = result.user;
 
         usersRef.once("value").then(function(snapshot) {
-            // TODO: check for previous login
-            loggedUser = {
-                "name": result.user.displayName,
-                "email": result.user.email
-            };
+            let snapshotValue = snapshot.val();
 
-            let res = usersRef.push(loggedUser);
-            loggedUser.id = res.key;
-            
-            console.log(loggedUser);
+            if (!snapshotValue) {
+                loggedUser = addNewUser(result, usersRef);
+                $("#good-to-go-window").show();
+            } else {
+                let previousUser = findPreviousUser(result, snapshotValue);
+                if (previousUser !== null) {
+                    loggedUser = previousUser;
+                    $("#welcome-back-window").show();
+                } else {
+                    loggedUser = addNewUser(result, usersRef);
+                    $("#good-to-go-window").show();
+                }
+            }
 
             $("#login-window").hide();
-            $("#good-to-go-window").show();
         });
 
     }).catch(function(error) {
@@ -64,4 +60,32 @@ function signInWithGoogle(auth, database) {
 
 function signInWithGithub() {
 
+}
+
+function addNewUser(result, ref) {
+    let user = {
+        name:  result.user.displayName,
+        email: result.user.email
+    };
+
+    let userRef = ref.push(user);
+    user.id = userRef.key;
+    return user;
+}
+
+function findPreviousUser(result, snapshotValue) {
+    // look through users to find if this
+    // user was logged in previously
+    let keys = Object.keys(snapshotValue);
+    for (let i = 0; i < keys.length; i++) {
+        let userIt = snapshotValue[keys[i]];
+        if (userIt.email == result.user.email) {
+            let res = userIt;
+            res.id = keys[i];
+            // user was found
+            return res;
+        }
+    }
+
+    return null;
 }

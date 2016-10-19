@@ -27,7 +27,7 @@ function onYouTubePlayerAPIReady() {
         playerVars: {
             controls: 0,
             modestbranding: 0,
-        }, 
+        },
         videoId: youtubeVideoId,
         events: {
             'onReady': onPlayerReady,
@@ -50,7 +50,7 @@ function onYouTubePlayerAPIReady() {
             $("#postbtn").removeAttribute('disabled');
             $("#timeremaining").innerHTML = "0s";
         } else {
-            $("#timeremaining").innerHTML = 
+            $("#timeremaining").innerHTML =
                 Math.ceil(timeToListen-player.getCurrentTime()) + "s";
         }
     }
@@ -75,7 +75,7 @@ function onPlayerStateChange(event) {
         console.log("stateHandler not defined");
         return;
     }
-    
+
     // alert the server that the video state has changed
 
     var currentState = event.data;
@@ -89,7 +89,9 @@ function onPlayerStateChange(event) {
             $("#i-video-state").css({ "color": "gray" });
         }
 
-        console.log("User paused");
+        // hide the player
+        $("#player").hide();
+
         stateHandler(player.getCurrentTime(), "paused");
         prevState = currentState;
     } else if ((prevState == -1 || prevState == 2) && currentState == 1 /*playing*/) {
@@ -98,6 +100,9 @@ function onPlayerStateChange(event) {
             $("#i-video-state").addClass("fa-play");
             $("#i-video-state").css({ "color": "#00e673" });
         }
+
+        // show the player
+        $("#player").show();
 
         //alert("The video title is: " +  event.target.getVideoData().title);
         stateHandler(player.getCurrentTime(), "playing");

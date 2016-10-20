@@ -1,5 +1,3 @@
-// should video play/pause events be sent to the server
-let sendEvents = true;
 
 function generateRoomId() {
     return Math.random().toString(36).substr(2, 8);
@@ -10,7 +8,16 @@ $(document).ready(function() {
         // if we get the #content's click event it means
         // that the youtube player element is hidden, by pausing it.
         // therefore, play the youtube video.
-        player.playVideo();
+        playVideo(true);
+        $("#paused-bg").hide();
+        $("#player").show();
+
+        // change sidebar play icon
+        if ($("#i-video-state").hasClass("fa-pause")) {
+            $("#i-video-state").removeClass("fa-pause");
+            $("#i-video-state").addClass("fa-play");
+            $("#i-video-state").css({ "color": "#00e673" });
+        }
     });
 
     $("#create-modal-link").click(function() {
@@ -285,28 +292,44 @@ function loadRoomContent() {
             } else if (!youtubePlayerLoaded) {
                 console.log("Error, YouTube player not loaded!");
             } else {
-                sendEvents = false;
                 player.cueVideoById(newVideoId);
 
+                console.log("Rec. video state: " + newVideoState);
+
                 if (newVideoState == "playing") {
-                    player.playVideo();
+                    playVideo(false);
                     // seek to location
                     player.seekTo(newVideoTime, true);
 
                     // show the 'paused' background
                     $("#paused-bg").hide();
+                    $("#player").show();
+
+                    // change sidebar play icon
+                    if ($("#i-video-state").hasClass("fa-pause")) {
+                        $("#i-video-state").removeClass("fa-pause");
+                        $("#i-video-state").addClass("fa-play");
+                        $("#i-video-state").css({ "color": "#00e673" });
+                    }
 
                 } else if (newVideoState == "paused") {
                     player.seekTo(newVideoTime, true);
-                    player.pauseVideo();
+                    pauseVideo(false);
 
                     // show the 'paused' background
                     $("#paused-bg").show();
+                    $("#player").hide();
                     $("#paused-text").html(`
                         Paused by <b>${actionTriggeredBy}</b>.<br>
                         Click here to resume.`);
+
+                    // change sidebar button to a paused icon
+                    if ($("#i-video-state").hasClass("fa-play")) {
+                        $("#i-video-state").removeClass("fa-play");
+                        $("#i-video-state").addClass("fa-pause");
+                        $("#i-video-state").css({ "color": "gray" });
+                    }
                 }
-                sendEvents = true;
             }
         }
     });
@@ -326,19 +349,17 @@ function sendMessage(msg) {
 }
 
 function stateHandler(playerTime, playerState) {
-    if (sendEvents) {
-        let currentRoomKey = loggedUser.currentRoomKey;
-        let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
-        let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
-        let currentVideoInfoRef = database.ref("/rooms/" + currentRoomKey.toString() + "/currentVideo");
+    let currentRoomKey = loggedUser.currentRoomKey;
+    let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
+    let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
+    let currentVideoInfoRef = database.ref("/rooms/" + currentRoomKey.toString() + "/currentVideo");
 
-        // send to server
-        currentVideoInfoRef.update({
-            "time": playerTime,
-            "videoState": playerState.toString(),
-            "actionTriggeredBy": loggedUser.name.toString()
-        });
-    }
+    // send to server
+    currentVideoInfoRef.update({
+        "time": playerTime,
+        "videoState": playerState.toString(),
+        "actionTriggeredBy": loggedUser.name.toString()
+    });
 }
 
 function getVideoTitle(videoId) {

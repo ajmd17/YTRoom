@@ -1,9 +1,16 @@
 // global variable for current video id
 var youtubeVideoId;
-var prevState = -1;
 
 var player = null;
 var youtubePlayerLoaded = false;
+
+var PlayState = {
+    NONE: -1,
+    PAUSED: 0,
+    PLAYING: 1
+};
+
+var curState = PlayState.NONE;
 
 function loadYouTubePlayer() {
     // try parsing youtube video id from the given url
@@ -56,12 +63,22 @@ function onYouTubePlayerAPIReady() {
     }
 }, 100);*/
 
-function stopVideo() {
-    player.stopVideo();
+function pauseVideo(shouldSendEvents) {
+    player.pauseVideo();
+    curState = PlayState.PAUSED;
+
+    if (shouldSendEvents) {
+        stateHandler(player.getCurrentTime(), "paused");
+    }
 }
 
-function playVideo() {
-    event.target.playVideo();
+function playVideo(shouldSendEvents) {
+    player.playVideo();
+    curState = PlayState.PLAYING;
+
+    if (shouldSendEvents) {
+        stateHandler(player.getCurrentTime(), "playing");
+    }
 }
 
 // autoplay video
@@ -78,35 +95,19 @@ function onPlayerStateChange(event) {
 
     // alert the server that the video state has changed
 
-    var currentState = event.data;
-    console.log("prevState = " + prevState.toString());
-    console.log("currentState = " + currentState.toString());
+    let ytState = event.data;
 
-    if ((prevState == -1 || prevState == 1) && currentState == 2 /*paused*/) {
-        if ($("#i-video-state").hasClass("fa-play")) {
-            $("#i-video-state").removeClass("fa-play");
-            $("#i-video-state").addClass("fa-pause");
-            $("#i-video-state").css({ "color": "gray" });
-        }
+    if ((curState == PlayState.NONE || curState == PlayState.PLAYING) && ytState == 2 /*paused*/) {
+        
 
         // hide the player
         $("#player").hide();
-
         stateHandler(player.getCurrentTime(), "paused");
-        prevState = currentState;
-    } else if ((prevState == -1 || prevState == 2) && currentState == 1 /*playing*/) {
-        if ($("#i-video-state").hasClass("fa-pause")) {
-            $("#i-video-state").removeClass("fa-pause");
-            $("#i-video-state").addClass("fa-play");
-            $("#i-video-state").css({ "color": "#00e673" });
-        }
 
-        // show the player
-        $("#player").show();
+        curState = PlayState.PAUSED;
+    } else if ((curState == PlayState.NONE || curState == PlayState.PAUSED) && ytState == 1 /*playing*/) {
 
         //alert("The video title is: " +  event.target.getVideoData().title);
-        stateHandler(player.getCurrentTime(), "playing");
-        console.log("User played");
-        prevState = currentState;
+        curState = PlayState.PLAYING;
     }
 }

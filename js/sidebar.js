@@ -22,7 +22,7 @@ $(document).ready(function() {
         if (window.innerWidth <= 600) {
             $("#content").hide();
         }
-        
+
         $("#sidebar-title").text("Chat");
         $(".sidebar").addClass("opened");
         $("#chat-messages").css({ "width": "100%", "display": "block" });
@@ -34,7 +34,7 @@ $(document).ready(function() {
         if (window.innerWidth <= 600) {
             $("#content").hide();
         }
-        
+
         $("#sidebar-title").text("Queue");
         $(".sidebar").addClass("opened");
         $("#video-queue").css({ "width": "100%", "display": "block" });

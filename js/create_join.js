@@ -1,6 +1,15 @@
+// global variable to hold the current room
+let currentRoomRef = null;
 
 function generateRoomId() {
     return Math.random().toString(36).substr(2, 8);
+}
+
+function getDate() {
+    let now = new Date();
+    let date = now.getFullYear() + "/" + ("0" + (now.getMonth() + 1)).slice(-2) + "/" + ("0" + now.getDate()).slice(-2);
+    let time = now.getHours() + ":" + ("0" + now.getMinutes()).slice(-2);
+    return date + " " + time;
 }
 
 $(document).ready(function() {
@@ -54,18 +63,10 @@ $(document).ready(function() {
             };
 
             // push room info to Firebase
-            let thisRoom = roomRef.push(roomData);
-            let thisRoomRef = database.ref("/rooms/" + thisRoom.key.toString());
-            // TODO: Make it add the actual watcher to the room
-            let thisRoomUsersRef = database.ref("/rooms/" + thisRoom.key.toString()
-                + "/watchers");
-
-            // update the current room property
-            let usersRef = database.ref("/users");
-            loggedUser.currentRoomKey = thisRoom.key.toString();
-            usersRef.update(loggedUser);
-
-            thisRoomUsersRef.push(loggedUser.id);
+            // set the global variable currentRoomRef
+            currentRoomRef = roomRef.push(roomData);
+            // enter the room
+            enterRoom(roomData);
         }
     });
 
@@ -89,8 +90,8 @@ $(document).ready(function() {
         let foundRoom = {};
 
         // check the database for rooms with the key
-        let roomRef = database.ref("/rooms");
-        roomRef.once("value").then(function(snapshot) {
+        let roomsRef = database.ref("/rooms");
+        roomsRef.once("value").then(function(snapshot) {
             // get the snapshot value
             let snapshotValue = snapshot.val();
             if (snapshotValue == undefined || snapshotValue == null) {
@@ -110,8 +111,6 @@ $(document).ready(function() {
                 if (!found) {
                     $("#room-join-error").show();
                 } else {
-                    console.log(foundRoom);
-
                     let maxWatchers = foundRoom.max;
                     let watchers = foundRoom.watchers;
                     let numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
@@ -120,17 +119,9 @@ $(document).ready(function() {
                         // cannot join, room is full
                         $("#room-join-error").show();
                     } else {
-
-                        // update the current room property
-                        let usersRef = database.ref("/users");
-                        loggedUser.currentRoomKey = foundRoom.key.toString();
-                        usersRef.update(loggedUser);
-
-                        // add user to watchers
-                        let thisRoomUsersRef = database.ref("/rooms/" + foundRoom.key.toString()
-                            + "/watchers");
-
-                        thisRoomUsersRef.push(loggedUser.id);
+                        // set the global variable currentRoomRef
+                        currentRoomRef = roomsRef.child(foundRoom.key);
+                        enterRoom(foundRoom);
 
                         // show the room content
                         $("#good-to-go-window").hide();
@@ -179,9 +170,7 @@ $(document).ready(function() {
             let youtubeVideoId = text.split("v=")[1];
 
             // send request to the server
-            let currentRoomKey = loggedUser.currentRoomKey;
-            let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
-            let queueRef = database.ref("/rooms/" + currentRoomKey.toString() + "/queue");
+            let queueRef = currentRoomRef.child("queue");
 
             // push the object
             queueRef.push({
@@ -192,15 +181,36 @@ $(document).ready(function() {
             $("#add-video-modal").modal("hide");
         }
     });
+
+    $("#room-history-link").click(function() {
+        // clear the room history items
+         $("#room-history-items").find("tr:gt(0)").remove();
+
+        // load room history items
+        if (loggedUser.roomHistory === undefined) {
+            $("#room-history-items").append($("<tr>").append("No history"));
+        } else {
+            let keys = Object.keys(loggedUser.roomHistory);
+            // for now, print the key of each previous room
+            for (let i = 0; i < keys.length; i++) {
+                let curRoom = loggedUser.roomHistory[keys[i]];
+                $("#room-history-items").append(
+                    $("<tr>").append($("<td>").append(curRoom.name))
+                             .append($("<td>").append(keys[i]))
+                             .append($("<td>").append(curRoom.dateJoined)));
+            }
+        }
+
+        $("#room-history-modal").modal("show");
+    });
 });
 
 function loadRoomContent() {
     loadYouTubePlayer();
 
-    let currentRoomKey = loggedUser.currentRoomKey;
-    let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
-    let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
-    let currentVideoInfoRef = database.ref("/rooms/" + currentRoomKey.toString() + "/currentVideo");
+    let messagesRef = currentRoomRef.child("messages");
+    let queueRef = currentRoomRef.child("queue");
+    let currentVideoInfoRef = currentRoomRef.child("currentVideo");
 
     // message listener
     messagesRef.on("value", function(snapshot) {
@@ -216,7 +226,6 @@ function loadRoomContent() {
                 let senderId = msg.sender;
                 let senderName = msg.senderName;
                 let body = msg.body;
-
 
                 if (senderId == loggedUser.id) {
                     $("#chat-items").append(`
@@ -237,7 +246,6 @@ function loadRoomContent() {
     });
 
     // queue listener
-    let queueRef = database.ref("/rooms/" + currentRoomKey.toString() + "/queue");
     queueRef.on("value", function(snapshot) {
         $("#queue-items").html("");
 
@@ -335,11 +343,27 @@ function loadRoomContent() {
     });
 }
 
+function enterRoom(room) {
+    let loggedUserRef = database.ref("/users").child(loggedUser.id);
+
+    // update the user's history
+    if (loggedUser.roomHistory == undefined) {
+        loggedUser.roomHistory = {};
+    }
+
+    loggedUser.roomHistory[room.id.toString()] = {
+        name: room.name,
+        dateJoined: getDate()
+    };
+    loggedUserRef.child("/roomHistory/").update(loggedUser.roomHistory);
+
+    // add user to watchers in this room
+    currentRoomRef.child("watchers").push(loggedUser.id);
+}
+
 // send a chat message to the room
 function sendMessage(msg) {
-    let currentRoomKey = loggedUser.currentRoomKey;
-    let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
-    let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
+    let messagesRef = currentRoomRef.child("messages");
 
     messagesRef.push({
         sender: loggedUser.id,
@@ -349,10 +373,8 @@ function sendMessage(msg) {
 }
 
 function stateHandler(playerTime, playerState) {
-    let currentRoomKey = loggedUser.currentRoomKey;
-    let currentRoomRef = database.ref("/rooms/" + currentRoomKey.toString());
-    let messagesRef = database.ref("/rooms/" + currentRoomKey.toString() + "/messages");
-    let currentVideoInfoRef = database.ref("/rooms/" + currentRoomKey.toString() + "/currentVideo");
+    let messagesRef = currentRoomRef.child("messages");
+    let currentVideoInfoRef = currentRoomRef.child("currentVideo");
 
     // send to server
     currentVideoInfoRef.update({
@@ -364,7 +386,7 @@ function stateHandler(playerTime, playerState) {
 
 function getVideoTitle(videoId) {
     // get title
-    let youtubeUrl = "https://www.googleapis.com/youtube/v3/videos?id="+
+    let dataUrl = "https://www.googleapis.com/youtube/v3/videos?id=" +
         videoId.toString() + "&key=" + "AIzaSyDN6w-48JzA4iqou6PqZAob7j6LrTtU0MQ" + "&part=snippet";
 
     let json = null;
@@ -372,7 +394,7 @@ function getVideoTitle(videoId) {
     $.ajax({
         "async": false,
         "global": false,
-        "url": youtubeUrl,
+        "url": dataUrl,
         "dataType": "json",
         "success": function(data) {
             json = data;

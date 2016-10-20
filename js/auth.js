@@ -22,12 +22,20 @@ $(document).ready(function() {
         signInWithGoogle(auth, database);
     });
 
-    $("#github-login").click(signInWithGithub);
+    $("#twitter-login").click(function() {
+        signInWithTwitter(auth, database);
+    });
 });
 
 function signInWithGoogle(auth, database) {
-    let provider = new firebase.auth.GoogleAuthProvider();
+    signIn(auth, database, new firebase.auth.GoogleAuthProvider());
+}
 
+function signInWithTwitter(auth, database) {
+    signIn(auth, database, new firebase.auth.TwitterAuthProvider());
+}
+
+function signIn(auth, database, provider) {
     auth.signInWithPopup(provider).then(function(result) {
         let usersRef = database.ref("/users");
         let token = result.credential.accessToken;
@@ -39,14 +47,17 @@ function signInWithGoogle(auth, database) {
             if (!snapshotValue) {
                 loggedUser = addNewUser(result, usersRef);
                 $("#good-to-go-window").show();
+                $("#nav-links").show();
             } else {
                 let previousUser = findPreviousUser(result, snapshotValue);
                 if (previousUser !== null) {
                     loggedUser = previousUser;
                     $("#welcome-back-window").show();
+                    $("#nav-links").show();
                 } else {
                     loggedUser = addNewUser(result, usersRef);
                     $("#good-to-go-window").show();
+                    $("#nav-links").show();
                 }
             }
 
@@ -56,10 +67,6 @@ function signInWithGoogle(auth, database) {
     }).catch(function(error) {
         alert(error.toString());
     });
-}
-
-function signInWithGithub() {
-
 }
 
 function addNewUser(result, ref) {

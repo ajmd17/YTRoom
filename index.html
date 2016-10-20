@@ -27,10 +27,24 @@
                     </div>
 
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav">
-                            <li><a href="#" id="create-modal-link">Create</a></li>
-                            <li><a href="#" id="join-modal-link">Join</a></li>
-                        </ul>
+                        <div id="nav-links" style="display: none;">
+                            <ul class="nav navbar-nav">
+                                <li><a href="#" id="create-modal-link">Create</a></li>
+                                <li><a href="#" id="join-modal-link">Join</a></li>
+                            </ul>
+
+                            <ul class="nav navbar-nav navbar-right">
+                                <li class="dropdown">
+                                    <a href="#" id="profile-link" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user" aria-hidden="true"></i>Profile</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" id="room-history-link">Room history</a></li>
+                                        <li><a href="#" id="my-rooms-link">My rooms</a></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li><a href="#" id="log-out-link">Log out</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -46,8 +60,8 @@
                         <div class="row">
                             <div class="col-md-4"></div>
                             <div class="col-md-4">
-                                <a id="github-login" class="btn btn-block btn-social btn-github">
-                                    <span class="fa fa-github"></span> Sign in with Github
+                                <a id="twitter-login" class="btn btn-block btn-social btn-twitter">
+                                    <span class="fa fa-twitter"></span> Sign in with Twitter
                                 </a>
                                 <a id="google-login" class="btn btn-block btn-social btn-google">
                                     <span class="fa fa-google"></span> Sign in with Google
@@ -243,36 +257,24 @@
             </div>
         </div>
 
-        <!-- chat modal for mobile screens -->
-        <div class="modal fade" id="chat-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label" aria-hidden="true">
+        <!-- room history modal -->
+        <div class="modal fade" id="room-history-modal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title">Chat</h4>
+                        <h4 class="modal-title">Room History</h4>
                     </div>
                     <div class="modal-body">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- queue modal for mobile screens -->
-        <div class="modal fade" id="queue-modal" tabindex="-1" role="dialog" aria-labelledby="join-modal-label" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title">Queue</h4>
-                    </div>
-                    <div class="modal-body">
+                        <table id="room-history-items" style="width:100%;">
+                            <tr>
+                                <th>Name</th>
+                                <th>Key</th>
+                                <th>Date/Time Joined</th>
+                            </tr>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>

@@ -1,5 +1,15 @@
+function getRandom(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 function generateRoomId() {
-    return Math.random().toString(36).substr(2, 8);
+    let randString = "";
+    let numWords = getRandom(2, 4);
+    for (let i = 0; i < numWords; i++) {
+        let word = words[getRandom(0, words.length)];
+        randString += word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    return randString;
 }
 
 function getDate() {

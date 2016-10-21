@@ -18,6 +18,14 @@ $(document).ready(function() {
         }
     });
 
+    $("#i-video-state").click(function() {
+        if (curState == PlayState.PLAYING) {
+            pauseVideo(true);
+        } else {
+            playVideo(true);
+        }
+    });
+
     $("#create-modal-link").click(function() {
         // hide the error, in the case that it was previously visible
         $("#room-name-error").hide();
@@ -54,17 +62,17 @@ $(document).ready(function() {
             // push room info to Firebase
             // set the global variable currentRoomRef
             currentRoomRef = roomRef.push(roomData);
+
             // enter the room
             enterRoom(roomData);
-        }
-    });
 
-    $("#go-to-room-btn").click(function() {
-        // redirect page to the created room
-        $("#good-to-go-window").hide();
-        $("#welcome-back-window").hide();
-        $("#room-content").show();
-        loadRoomContent();
+            $("#good-to-go-window").hide();
+            $("#welcome-back-window").hide();
+            $("#room-content").show();
+
+            // load the content
+            loadRoomContent();
+        }
     });
 
     $("#join-modal-link").click(function() {
@@ -91,6 +99,7 @@ $(document).ready(function() {
                 let watchers = foundRoom.watchers;
                 let numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
 
+                // TODO: move this to the enterRoom() function.
                 if (numWatchers >= maxWatchers) {
                     // cannot join, room is full
                     $("#room-join-error").show();

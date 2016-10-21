@@ -5,19 +5,24 @@ YTRoom lets you watch YouTube videos in sync with other people.
 ## Installation
 
 * Clone the git repository with the terminal command
-```git clone https://github.com/ajmd17/YTRoom.git```
-
+```
+git clone https://github.com/ajmd17/YTRoom.git
+```
 
 * Enter the newly created directory
-```cd YTRoom```
-
+```
+cd YTRoom
+```
 
 * Start a webserver with Python
-```python -m SimpleHTTPServer```
-
+```
+python -m SimpleHTTPServer
+```
 
 * Open a browser window and go to the location
-```localhost:8000```
+```
+localhost:8000
+```
 
 ## Usage
 

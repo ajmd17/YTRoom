@@ -39,6 +39,7 @@ $(document).ready(function() {
         $("#sidebar-title").text("Queue");
         $(".sidebar").addClass("opened");
         $("#video-queue").css({ "width": "100%", "display": "block" });
+        $("#add-to-queue-btn").show();
 
         resizeContent();
     });
@@ -59,6 +60,7 @@ $(document).ready(function() {
     $("#hide-sidebar").click(function() {
         $(".sidebar").removeClass("opened");
         $(".sidebar-panel").css({ "width": "0", "display": "none" });
+        $("#add-to-queue-btn").hide();
         $("#content").show();
 
         resizeContent();

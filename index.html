@@ -98,8 +98,11 @@
             <div id="sidebar-wrapper">
                 <div class="sidebar">
                     <div id="sidebar-top">
-                        <a id="hide-sidebar" href="#">
+                        <a id="hide-sidebar" href="#" class="right-sidebar-btn">
                             <i class="fa fa-angle-double-left"></i>
+                        </a>
+                        <a id="add-to-queue-btn" href="#" style="display: none;" class="right-sidebar-btn">
+                            <i class="fa fa-plus-circle"></i>
                         </a>
                         <div id="sidebar-title">Title</div>
                     </div>
@@ -130,7 +133,6 @@
                     <div id="video-queue" class="sidebar-panel">
                         <ul id="queue-items">
                         </ul>
-                        <button class="popup-btn" style="margin: 0 auto;" id="add-to-queue-btn">Add Video</button>
                     </div>
 
                     <div id="watchers-list" class="sidebar-panel">
@@ -284,6 +286,8 @@
                 </div>
             </div>
         </div>
+
+        <audio id="ping-sound" src="sounds/ping.mp3" type="audio/mpeg"></audio>
 
         <!-- jQuery -->
         <script src="js/jquery.min.js"></script>

@@ -37,12 +37,13 @@ function signInWithTwitter(auth, database) {
 
 function signIn(auth, database, provider) {
     auth.signInWithPopup(provider).then(function(result) {
+        console.log("Got result: " + JSON.stringify(result).toString());
         let usersRef = database.ref("/users");
         let token = result.credential.accessToken;
         let user = result.user;
 
         usersRef.once("value").then(function(snapshot) {
-            let foundUser = snapshotHasProperty(snapshot, { "email": result.user.email });
+            let foundUser = snapshotHasProperty(snapshot, { "uid": result.user.uid });
             if (!foundUser) {
                 loggedUser = addNewUser(result, usersRef);
                 $("#good-to-go-window").show();
@@ -64,7 +65,7 @@ function signIn(auth, database, provider) {
 function addNewUser(result, ref) {
     let user = {
         name:  result.user.displayName,
-        email: result.user.email
+        uid: result.user.uid
     };
 
     let userRef = ref.push(user);

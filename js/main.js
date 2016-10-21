@@ -199,6 +199,12 @@ function loadRoomContent() {
 
     // message listener
     messagesRef.on("value", function(snapshot) {
+        // play notification sound
+        // only play if chat window is closed
+        if ($("#chat-messages").css("display") == "none") {
+            $("#ping-sound")[0].play();
+        }
+
         // clear the html of the chat items
         $("#chat-items").html("");
 
@@ -366,7 +372,7 @@ function enterRoom(room) {
             watchersRef.push({
                 key: loggedUser.key,
                 name: loggedUser.name,
-                email: loggedUser.email
+                uid: loggedUser.uid
             });
         }
     });

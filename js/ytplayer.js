@@ -1,8 +1,9 @@
 // global variable for current video id
-var youtubeVideoId;
+let youtubeVideoId;
 
-var player = null;
-var youtubePlayerLoaded = false;
+// global variable for video player
+let player = null;
+let youtubePlayerLoaded = false;
 
 var PlayState = {
     NONE: -1,
@@ -10,58 +11,41 @@ var PlayState = {
     PLAYING: 1
 };
 
-var curState = PlayState.NONE;
+// global variable for video play state
+let curState = PlayState.NONE;
 
 function loadYouTubePlayer() {
     // try parsing youtube video id from the given url
     $("#submit-youtube-url-button").click(function() {
-        var givenUrl = $("#youtube-url").val();
+        let givenUrl = $("#youtube-url").val();
         youtubeVideoId = givenUrl.split('v=')[1];
 
         // create the script element
-        var tag = document.createElement("script");
+        let tag = document.createElement("script");
         tag.src = "https://www.youtube.com/iframe_api";
         // insert the element into the DOM
-        var firstScriptTag = document.getElementsByTagName("script")[0];
+        let firstScriptTag = document.getElementsByTagName("script")[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     });
 }
 
 function onYouTubePlayerAPIReady() {
     player = new YT.Player('player', {
-        height: '100%',
-        width: '100%',
+        height: "100%",
+        width: "100%",
         playerVars: {
             controls: 0,
             modestbranding: 0,
         },
         videoId: youtubeVideoId,
         events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
+            "onReady": onPlayerReady,
+            "onStateChange": onPlayerStateChange
         }
     });
 
     youtubePlayerLoaded = true;
 }
-
-/*setInterval(function() {
-    if (youtubePlayerLoaded) {
-        var timeToListen = 30.0;
-
-        if (parseFloat(player.getDuration()) < 30.0) {
-            timeToListen = parseFloat(player.getDuration());
-        }
-
-        if (player.getCurrentTime() >= timeToListen) {
-            $("#postbtn").removeAttribute('disabled');
-            $("#timeremaining").innerHTML = "0s";
-        } else {
-            $("#timeremaining").innerHTML =
-                Math.ceil(timeToListen-player.getCurrentTime()) + "s";
-        }
-    }
-}, 100);*/
 
 function pauseVideo(shouldSendEvents) {
     player.pauseVideo();
@@ -81,33 +65,22 @@ function playVideo(shouldSendEvents) {
     }
 }
 
-// autoplay video
 function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-    console.log("state change: ");
-    console.log(event);
     if (stateHandler == undefined || stateHandler == null) {
         console.log("stateHandler not defined");
         return;
     }
 
-    // alert the server that the video state has changed
-
-    let ytState = event.data;
-
-    if ((curState == PlayState.NONE || curState == PlayState.PLAYING) && ytState == 2 /*paused*/) {
-        
-
+    if ((curState == PlayState.NONE || curState == PlayState.PLAYING) && event.data == 2 /*paused*/) {
         // hide the player
         $("#player").hide();
         stateHandler(player.getCurrentTime(), "paused");
 
         curState = PlayState.PAUSED;
-    } else if ((curState == PlayState.NONE || curState == PlayState.PAUSED) && ytState == 1 /*playing*/) {
-
-        //alert("The video title is: " +  event.target.getVideoData().title);
+    } else if ((curState == PlayState.NONE || curState == PlayState.PAUSED) && event.data == 1 /*playing*/) {
         curState = PlayState.PLAYING;
     }
 }

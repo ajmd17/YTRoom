@@ -1,17 +1,6 @@
 // global variable to hold the current room
 let currentRoomRef = null;
 
-function generateRoomId() {
-    return Math.random().toString(36).substr(2, 8);
-}
-
-function getDate() {
-    let now = new Date();
-    let date = now.getFullYear() + "/" + ("0" + (now.getMonth() + 1)).slice(-2) + "/" + ("0" + now.getDate()).slice(-2);
-    let time = now.getHours() + ":" + ("0" + now.getMinutes()).slice(-2);
-    return date + " " + time;
-}
-
 $(document).ready(function() {
     $("#content").click(function() {
         // if we get the #content's click event it means
@@ -78,7 +67,6 @@ $(document).ready(function() {
         loadRoomContent();
     });
 
-
     $("#join-modal-link").click(function() {
         // hide the error, in the case that it was previously visible
         $("#room-join-error").hide();
@@ -87,51 +75,38 @@ $(document).ready(function() {
 
     $("#join-room-btn").click(function() {
         let roomKey = $("#room-key").val();
-        let foundRoom = {};
 
         // check the database for rooms with the key
         let roomsRef = database.ref("/rooms");
         roomsRef.once("value").then(function(snapshot) {
-            // get the snapshot value
-            let snapshotValue = snapshot.val();
-            if (snapshotValue == undefined || snapshotValue == null) {
+            let foundRoom = snapshotHasProperty(snapshot, {
+                "id": roomKey
+            });
+
+            if (!foundRoom) {
                 // error joining room
                 $("#room-join-error").show();
             } else {
-                let keys = Object.keys(snapshotValue);
-                let found = false;
-                for (let i = 0; i < keys.length; i++) {
-                    if (snapshotValue[keys[i]].id === roomKey) {
-                        foundRoom = snapshotValue[keys[i]];
-                        foundRoom.key = keys[i];
-                        found = true;
-                    }
-                }
+                let maxWatchers = foundRoom.max;
+                let watchers = foundRoom.watchers;
+                let numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
 
-                if (!found) {
+                if (numWatchers >= maxWatchers) {
+                    // cannot join, room is full
                     $("#room-join-error").show();
                 } else {
-                    let maxWatchers = foundRoom.max;
-                    let watchers = foundRoom.watchers;
-                    let numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
+                    // set the global variable currentRoomRef
+                    currentRoomRef = roomsRef.child(foundRoom.key);
+                    enterRoom(foundRoom);
 
-                    if (numWatchers >= maxWatchers) {
-                        // cannot join, room is full
-                        $("#room-join-error").show();
-                    } else {
-                        // set the global variable currentRoomRef
-                        currentRoomRef = roomsRef.child(foundRoom.key);
-                        enterRoom(foundRoom);
+                    // show the room content
+                    $("#good-to-go-window").hide();
+                    $("#welcome-back-window").hide();
+                    $("#room-content").show();
+                    loadRoomContent();
 
-                        // show the room content
-                        $("#good-to-go-window").hide();
-                        $("#welcome-back-window").hide();
-                        $("#room-content").show();
-                        loadRoomContent();
-
-                        // hide the modal box
-                        $("#join-modal").modal("hide");
-                    }
+                    // hide the modal box
+                    $("#join-modal").modal("hide");
                 }
             }
         });
@@ -210,6 +185,7 @@ function loadRoomContent() {
 
     let messagesRef = currentRoomRef.child("messages");
     let queueRef = currentRoomRef.child("queue");
+    let watchersRef = currentRoomRef.child("watchers");
     let currentVideoInfoRef = currentRoomRef.child("currentVideo");
 
     // message listener
@@ -227,7 +203,7 @@ function loadRoomContent() {
                 let senderName = msg.senderName;
                 let body = msg.body;
 
-                if (senderId == loggedUser.id) {
+                if (senderId == loggedUser.key) {
                     $("#chat-items").append(`
                         <div class="bubble-sent">
                             ${ body } <sub>Sent by you</sub>
@@ -247,10 +223,13 @@ function loadRoomContent() {
 
     // queue listener
     queueRef.on("value", function(snapshot) {
+        // clear queue
         $("#queue-items").html("");
 
         let snapshotValue = snapshot.val();
-        if (snapshotValue) {
+        if (!snapshotValue || Object.keys(snapshotValue).length == 0) {
+            $("#queue-items").append($("<li>").append("No videos in queue"));
+        } else {
             let keys = Object.keys(snapshotValue);
 
             for (let i = 0; i < keys.length; i++) {
@@ -276,13 +255,28 @@ function loadRoomContent() {
                                 "time": 0,
                                 "videoState": "playing"
                             });
-                        }).append(videoTitle)
-                    )
-                );
+                        }).append(videoTitle)));
             }
 
             // scroll to bottom of messages
             $("#queue-items").scrollTop($("#queue-items")[0].scrollHeight);
+        }
+    });
+
+    // watcher listener
+    watchersRef.on("value", function(snapshot) {
+        // clear watcher list
+        $("#watchers-items").html("");
+
+        let snapshotValue = snapshot.val();
+        if (snapshotValue) {
+            let keys = Object.keys(snapshotValue);
+            for (let i = 0; i < keys.length; i++) {
+                let watcherInfo = snapshotValue[keys[i]];
+                // add the user to the sidebar
+                $("#watchers-items").append(
+                    $("<li>").append(watcherInfo.name));
+            }
         }
     });
 
@@ -301,8 +295,6 @@ function loadRoomContent() {
                 console.log("Error, YouTube player not loaded!");
             } else {
                 player.cueVideoById(newVideoId);
-
-                console.log("Rec. video state: " + newVideoState);
 
                 if (newVideoState == "playing") {
                     playVideo(false);
@@ -344,7 +336,8 @@ function loadRoomContent() {
 }
 
 function enterRoom(room) {
-    let loggedUserRef = database.ref("/users").child(loggedUser.id);
+    let loggedUserRef = database.ref("/users").child(loggedUser.key);
+    let watchersRef = currentRoomRef.child("watchers");
 
     // update the user's history
     if (loggedUser.roomHistory == undefined) {
@@ -358,7 +351,16 @@ function enterRoom(room) {
     loggedUserRef.child("/roomHistory/").update(loggedUser.roomHistory);
 
     // add user to watchers in this room
-    currentRoomRef.child("watchers").push(loggedUser.id);
+    // first make sure it isn't already there
+    watchersRef.once("value", function(snapshot) {
+        if (!snapshotHasProperty(snapshot, { "key": loggedUser.key })) {
+            watchersRef.push({
+                key: loggedUser.key,
+                name: loggedUser.name,
+                email: loggedUser.email
+            });
+        }
+    });
 }
 
 // send a chat message to the room
@@ -366,7 +368,7 @@ function sendMessage(msg) {
     let messagesRef = currentRoomRef.child("messages");
 
     messagesRef.push({
-        sender: loggedUser.id,
+        sender: loggedUser.key,
         senderName: loggedUser.name,
         body: msg
     });

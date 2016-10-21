@@ -42,23 +42,15 @@ function signIn(auth, database, provider) {
         let user = result.user;
 
         usersRef.once("value").then(function(snapshot) {
-            let snapshotValue = snapshot.val();
-
-            if (!snapshotValue) {
+            let foundUser = snapshotHasProperty(snapshot, { "email": result.user.email });
+            if (!foundUser) {
                 loggedUser = addNewUser(result, usersRef);
                 $("#good-to-go-window").show();
                 $("#nav-links").show();
             } else {
-                let previousUser = findPreviousUser(result, snapshotValue);
-                if (previousUser !== null) {
-                    loggedUser = previousUser;
-                    $("#welcome-back-window").show();
-                    $("#nav-links").show();
-                } else {
-                    loggedUser = addNewUser(result, usersRef);
-                    $("#good-to-go-window").show();
-                    $("#nav-links").show();
-                }
+                loggedUser = foundUser;
+                $("#welcome-back-window").show();
+                $("#nav-links").show();
             }
 
             $("#login-window").hide();
@@ -76,23 +68,6 @@ function addNewUser(result, ref) {
     };
 
     let userRef = ref.push(user);
-    user.id = userRef.key;
+    user.key = userRef.key;
     return user;
-}
-
-function findPreviousUser(result, snapshotValue) {
-    // look through users to find if this
-    // user was logged in previously
-    let keys = Object.keys(snapshotValue);
-    for (let i = 0; i < keys.length; i++) {
-        let userIt = snapshotValue[keys[i]];
-        if (userIt.email == result.user.email) {
-            let res = userIt;
-            res.id = keys[i];
-            // user was found
-            return res;
-        }
-    }
-
-    return null;
 }

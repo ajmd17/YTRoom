@@ -18,7 +18,7 @@ $(document).ready(function() {
     resizeContent();
 
     $("#btn-chat").click(function() {
-        // on mobile displays, show a modal
+        // on mobile displays, take up entire width
         if (window.innerWidth <= 600) {
             $("#content").hide();
         }
@@ -29,8 +29,9 @@ $(document).ready(function() {
 
         resizeContent();
     });
+
     $("#btn-queue").click(function() {
-        // on mobile displays, show a modal
+        // on mobile displays, take up entire width
         if (window.innerWidth <= 600) {
             $("#content").hide();
         }
@@ -42,10 +43,22 @@ $(document).ready(function() {
         resizeContent();
     });
 
+    $("#btn-watchers").click(function() {
+        // on mobile displays, take up entire width
+        if (window.innerWidth <= 600) {
+            $("#content").hide();
+        }
+
+        $("#sidebar-title").text("Watchers");
+        $(".sidebar").addClass("opened");
+        $("#watchers-list").css({ "width": "100%", "display": "block" });
+
+        resizeContent();
+    });
+
     $("#hide-sidebar").click(function() {
         $(".sidebar").removeClass("opened");
         $(".sidebar-panel").css({ "width": "0", "display": "none" });
-
         $("#content").show();
 
         resizeContent();
@@ -55,8 +68,7 @@ $(document).ready(function() {
 function resizeChat() {
     let windowHeight = window.innerHeight;
     let maxHeight = (windowHeight - 210).toString() + "px";
-    $("#chat-items").css({ "max-height": maxHeight });
-    $("#chat-items").css({ "height": maxHeight });
+    $("#chat-items").css({ "max-height": maxHeight, "height": maxHeight });
 }
 
 function resizeContent() {
@@ -72,6 +84,7 @@ function resizeContent() {
     let windowWidth = window.innerWidth;
     let windowHeight = window.innerHeight;
     let maxHeight = (windowHeight - $("nav").height()).toString() + "px";
+
     $("#sidebar-wrapper").css({ "height": maxHeight });
     $("#content").css({ "height": maxHeight });
 

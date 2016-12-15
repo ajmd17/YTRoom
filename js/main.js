@@ -1,24 +1,27 @@
 // global variable to hold the current room
-let currentRoomRef = null;
+var currentRoomRef = null;
 
 $(document).ready(function() {
-    $("#content").click(function() {
+    $('#content').click(function() {
         // if we get the #content's click event it means
         // that the youtube player element is hidden, by pausing it.
         // therefore, play the youtube video.
         playVideo(true);
-        $("#paused-bg").hide();
-        $("#player").show();
+
+        $('#paused-bg').hide();
+        $('#player').show();
 
         // change sidebar play icon
-        if ($("#i-video-state").hasClass("fa-pause")) {
-            $("#i-video-state").removeClass("fa-pause");
-            $("#i-video-state").addClass("fa-play");
-            $("#i-video-state").css({ "color": "#00e673" });
+        var $videoStateBtn = $('#i-video-state');
+        if ($videoStateBtn.hasClass('fa-pause')) {
+            $videoStateBtn
+                .removeClass('fa-pause')
+                .addClass('fa-play')
+                .css({ color: '#00e673' });
         }
     });
 
-    $("#i-video-state").click(function() {
+    $('#i-video-state').click(function() {
         if (curState == PlayState.PLAYING) {
             pauseVideo(true);
         } else {
@@ -26,34 +29,34 @@ $(document).ready(function() {
         }
     });
 
-    $("#create-modal-link").click(function() {
+    $('#create-modal-link').click(function() {
         // hide the error, in the case that it was previously visible
-        $("#room-name-error").hide();
-        $("#create-modal").modal("show");
+        $('#room-name-error').hide();
+        $('#create-modal').modal('show');
     });
 
-    $("#create-room-btn").click(function() {
+    $('#create-room-btn').click(function() {
         // retrieve user entered values
-        let roomName = $("#room-name").val();
-        let maxViewers = parseInt($("#max-watchers").val());
+        var roomName = $('#room-name').val();
+        var maxViewers = parseInt($('#max-watchers').val());
         // generate room id
-        let roomId = generateRoomId();
+        var roomId = generateRoomId();
 
-        if (roomName.length == 0) {
+        if (!roomName.length) {
             // room name not set
-            $("#room-name-error").show();
+            $('#room-name-error').show();
         } else {
             // hide the current modal
-            $("#create-modal").modal("hide");
+            $('#create-modal').modal('hide');
 
             // set text for room ID
-            $("#random-id").text(roomId);
+            $('#random-id').text(roomId);
             // show the modal that displays the generated id
-            $("#after-create-modal").modal("show");
+            $('#after-create-modal').modal('show');
 
             // room creation with firebase
-            let roomRef = database.ref("/rooms");
-            let roomData = {
+            var roomRef = database.ref('/rooms');
+            var roomData = {
                 id: roomId,
                 name: roomName,
                 max: maxViewers
@@ -66,34 +69,34 @@ $(document).ready(function() {
             // enter the room
             enterRoom(roomData);
 
-            $("#good-to-go-window").hide();
-            $("#welcome-back-window").hide();
-            $("#room-content").show();
+            $('#good-to-go-window').hide();
+            $('#welcome-back-window').hide();
+            $('#room-content').show();
 
             // load the content
             loadRoomContent();
         }
     });
 
-    $("#join-modal-link").click(function() {
+    $('#join-modal-link').click(function() {
         // hide the error, in the case that it was previously visible
-        $("#room-join-error").hide();
-        $("#join-modal").modal("show");
+        $('#room-join-error').hide();
+        $('#join-modal').modal('show');
     });
 
-    $("#join-room-btn").click(function() {
-        let roomKey = $("#room-key").val();
+    $('#join-room-btn').click(function() {
+        var roomKey = $('#room-key').val();
 
         // check the database for rooms with the key
-        let roomsRef = database.ref("/rooms");
-        roomsRef.once("value").then(function(snapshot) {
-            let foundRoom = snapshotHasProperty(snapshot, {
-                "id": roomKey
+        var roomsRef = database.ref('/rooms');
+        roomsRef.once('value').then(function(snapshot) {
+            var foundRoom = snapshotHasProperty(snapshot, {
+                'id': roomKey
             });
 
             if (!foundRoom) {
                 // error joining room
-                $("#room-join-error").show();
+                $('#room-join-error').show();
             } else {
                 let maxWatchers = foundRoom.max;
                 let watchers = foundRoom.watchers;
@@ -102,59 +105,66 @@ $(document).ready(function() {
                 // TODO: move this to the enterRoom() function.
                 if (numWatchers >= maxWatchers) {
                     // cannot join, room is full
-                    $("#room-join-error").show();
+                    $('#room-join-error').show();
                 } else {
                     // set the global variable currentRoomRef
                     currentRoomRef = roomsRef.child(foundRoom.key);
                     enterRoom(foundRoom);
 
                     // show the room content
-                    $("#good-to-go-window").hide();
-                    $("#welcome-back-window").hide();
-                    $("#room-content").show();
+                    $('#good-to-go-window').hide();
+                    $('#welcome-back-window').hide();
+                    $('#room-content').show();
                     loadRoomContent();
 
                     // hide the modal box
-                    $("#join-modal").modal("hide");
+                    $('#join-modal').modal('hide');
                 }
             }
         });
     });
 
+    // enter key
+    $('#sidebar-send-txt').keyup(function(e) {
+        e.preventDefault();
+        if (e.keyCode == 13) {
+            $('#sidebar-send-btn').trigger('click');
+        }
+    });
+
     // bind click event to send message
-    $("#sidebar-send-btn").click(function() {
-        let text = $("#sidebar-send-txt").val();
+    $('#sidebar-send-btn').click(function() {
+        var text = $('#sidebar-send-txt').val();
 
         // send the message
         if (text.length > 0) {
             sendMessage(text);
             // clear the text field
-            $("#sidebar-send-txt").val("");
+            $('#sidebar-send-txt').val('');
         }
     });
 
     // bind click event to show add to queue modal
-    $("#add-to-queue-btn").click(function() {
+    $('#add-to-queue-btn').click(function() {
         // hide the error (in the case that it has been shown previously)
-        $("#video-input-error").hide();
+        $('#video-input-error').hide();
         // clear the textbox
-        $("#youtube-url").val("");
+        $('#youtube-url').val('');
         // show the modal
-        $("#add-video-modal").modal("show");
+        $('#add-video-modal').modal('show');
     });
 
     // bind click event to actually add the video to queue
-    $("#add-video-modal-btn").click(function() {
-        let text = $("#youtube-url").val();
-
-        if (text.length == 0) {
-            $("#video-input-error").show();
+    $('#add-video-modal-btn').click(function() {
+        var text = $('#youtube-url').val();
+        if (!text.length) {
+            $('#video-input-error').show();
         } else {
             // get the youtube video id
-            let youtubeVideoId = text.split("v=")[1];
+            var youtubeVideoId = text.split('v=')[1];
 
             // send request to the server
-            let queueRef = currentRoomRef.child("queue");
+            var queueRef = currentRoomRef.child('queue');
 
             // push the object
             queueRef.push({
@@ -162,51 +172,55 @@ $(document).ready(function() {
             });
 
             // close this modal
-            $("#add-video-modal").modal("hide");
+            $('#add-video-modal').modal('hide');
         }
     });
 
-    $("#room-history-link").click(function() {
+    $('#room-history-link').click(function() {
+        var $roomHistoryItems = $('#room-history-items');
+        var keys = {};
+
         // clear the room history items
-         $("#room-history-items").find("tr:gt(0)").remove();
+         $roomHistoryItems.find('tr:gt(0)').remove();
 
         // load room history items
         if (loggedUser.roomHistory === undefined) {
-            $("#room-history-items").append($("<tr>").append("No history"));
+            $roomHistoryItems.append(
+                $('<tr>').html('No history'));
         } else {
-            let keys = Object.keys(loggedUser.roomHistory);
+            keys = Object.keys(loggedUser.roomHistory);
             // for now, print the key of each previous room
             for (let i = 0; i < keys.length; i++) {
                 let curRoom = loggedUser.roomHistory[keys[i]];
-                $("#room-history-items").append(
-                    $("<tr>").append($("<td>").append(curRoom.name))
-                             .append($("<td>").append(keys[i]))
-                             .append($("<td>").append(curRoom.dateJoined)));
+                $roomHistoryItems.append(
+                    $('<tr>').append($('<td>').append(curRoom.name))
+                             .append($('<td>').append(keys[i]))
+                             .append($('<td>').append(curRoom.dateJoined)));
             }
         }
 
-        $("#room-history-modal").modal("show");
+        $('#room-history-modal').modal('show');
     });
 });
 
 function loadRoomContent() {
     loadYouTubePlayer();
 
-    let messagesRef = currentRoomRef.child("messages");
-    let queueRef = currentRoomRef.child("queue");
-    let watchersRef = currentRoomRef.child("watchers");
-    let currentVideoInfoRef = currentRoomRef.child("currentVideo");
+    var messagesRef = currentRoomRef.child('messages');
+    var queueRef = currentRoomRef.child('queue');
+    var watchersRef = currentRoomRef.child('watchers');
+    var currentVideoInfoRef = currentRoomRef.child('currentVideo');
 
     // message listener
-    messagesRef.on("value", function(snapshot) {
+    messagesRef.on('value', function(snapshot) {
         // play notification sound
         // only play if chat window is closed
-        if ($("#chat-messages").css("display") == "none") {
-            $("#ping-sound")[0].play();
+        if ($('#chat-messages').css('display') == 'none') {
+            $('#ping-sound')[0].play();
         }
 
         // clear the html of the chat items
-        $("#chat-items").html("");
+        $('#chat-items').html('');
 
         let snapshotValue = snapshot.val();
         if (snapshotValue) {
@@ -219,31 +233,31 @@ function loadRoomContent() {
                 let body = msg.body;
 
                 if (senderId == loggedUser.key) {
-                    $("#chat-items").append(`
-                        <div class="bubble-sent">
+                    $('#chat-items').append(`
+                        <div class='bubble-sent'>
                             ${ body } <sub>Sent by you</sub>
                         </div>`);
                 } else {
-                    $("#chat-items").append(`
-                        <div class="bubble-received">
+                    $('#chat-items').append(`
+                        <div class='bubble-received'>
                             ${ body } <sub>Sent by ${senderName}</sub>
                         </div>`);
                 }
             }
 
             // scroll to bottom of messages
-            $("#chat-items").scrollTop($("#chat-items")[0].scrollHeight);
+            $('#chat-items').scrollTop($('#chat-items')[0].scrollHeight);
         }
     });
 
     // queue listener
-    queueRef.on("value", function(snapshot) {
+    queueRef.on('value', function(snapshot) {
         // clear queue
-        $("#queue-items").html("");
+        $('#queue-items').html('');
 
         let snapshotValue = snapshot.val();
         if (!snapshotValue || Object.keys(snapshotValue).length == 0) {
-            $("#queue-items").append($("<li>").append("No videos in queue"));
+            $('#queue-items').append($('<li>').append('No videos in queue'));
         } else {
             let keys = Object.keys(snapshotValue);
 
@@ -252,36 +266,36 @@ function loadRoomContent() {
                 let videoId = msg.videoId;
                 let videoTitle = getVideoTitle(videoId);
 
-                $("#queue-items").append(
-                    $("<li>").append(
-                        $("<a>").click(function() {
+                $('#queue-items').append(
+                    $('<li>').append(
+                        $('<a>').click(function() {
                             // add click event to switch the video
                             // set to active
-                            if (!$(this).parent().hasClass("active")) {
+                            if (!$(this).parent().hasClass('active')) {
                                 // Remove the class from any other that are active
-                                $("li.active").removeClass("active");
+                                $('li.active').removeClass('active');
                                 // And make this active
-                                $(this).parent().addClass("active");
+                                $(this).parent().addClass('active');
                             }
 
                             // send to server the current video info
                             currentVideoInfoRef.update({
-                                "videoId": videoId.toString(),
-                                "time": 0,
-                                "videoState": "playing"
+                                'videoId': videoId.toString(),
+                                'time': 0,
+                                'videoState': 'playing'
                             });
                         }).append(videoTitle)));
             }
 
             // scroll to bottom of messages
-            $("#queue-items").scrollTop($("#queue-items")[0].scrollHeight);
+            $('#queue-items').scrollTop($('#queue-items')[0].scrollHeight);
         }
     });
 
     // watcher listener
-    watchersRef.on("value", function(snapshot) {
+    watchersRef.on('value', function(snapshot) {
         // clear watcher list
-        $("#watchers-items").html("");
+        $('#watchers-items').html('');
 
         let snapshotValue = snapshot.val();
         if (snapshotValue) {
@@ -289,60 +303,61 @@ function loadRoomContent() {
             for (let i = 0; i < keys.length; i++) {
                 let watcherInfo = snapshotValue[keys[i]];
                 // add the user to the sidebar
-                $("#watchers-items").append(
-                    $("<li>").append(watcherInfo.name));
+                $('#watchers-items').append(
+                    $('<li>').append(watcherInfo.name));
             }
         }
     });
 
     // current video info change listener
-    currentVideoInfoRef.on("value", function(snapshot) {
-        let snapshotValue = snapshot.val();
+    currentVideoInfoRef.on('value', function(snapshot) {
+        var snapshotValue = snapshot.val();
         if (snapshotValue) {
-            let newVideoId = snapshotValue.videoId;
-            let newVideoTime = parseInt(snapshotValue.time);
-            let newVideoState = snapshotValue.videoState;
-            let actionTriggeredBy = snapshotValue.actionTriggeredBy;
+            var newVideoId = snapshotValue.videoId;
+            var newVideoTime = parseInt(snapshotValue.time);
+            var newVideoState = snapshotValue.videoState;
+            var actionTriggeredBy = snapshotValue.actionTriggeredBy;
+
+            var $videoState = $('#i-video-state');
 
             if (player === null) {
-                console.log("Error, player was null!");
+                console.log('Error, player was null!');
             } else if (!youtubePlayerLoaded) {
-                console.log("Error, YouTube player not loaded!");
+                console.log('Error, YouTube player not loaded!');
             } else {
                 player.cueVideoById(newVideoId);
 
-                if (newVideoState == "playing") {
+                if (newVideoState == 'playing') {
                     playVideo(false);
                     // seek to location
                     player.seekTo(newVideoTime, true);
 
                     // show the 'paused' background
-                    $("#paused-bg").hide();
-                    $("#player").show();
+                    $('#paused-bg').hide();
+                    $('#player').show();
 
                     // change sidebar play icon
-                    if ($("#i-video-state").hasClass("fa-pause")) {
-                        $("#i-video-state").removeClass("fa-pause");
-                        $("#i-video-state").addClass("fa-play");
-                        $("#i-video-state").css({ "color": "#00e673" });
+                    if ($videoState.hasClass('fa-pause')) {
+                        $videoState.removeClass('fa-pause')
+                            .addClass('fa-play')
+                            .css({ color: '#00e673' });
                     }
-
-                } else if (newVideoState == "paused") {
+                } else if (newVideoState == 'paused') {
                     player.seekTo(newVideoTime, true);
                     pauseVideo(false);
 
                     // show the 'paused' background
-                    $("#paused-bg").show();
-                    $("#player").hide();
-                    $("#paused-text").html(`
+                    $('#paused-bg').show();
+                    $('#player').hide();
+                    $('#paused-text').html(`
                         Paused by <b>${actionTriggeredBy}</b>.<br>
                         Click here to resume.`);
 
                     // change sidebar button to a paused icon
-                    if ($("#i-video-state").hasClass("fa-play")) {
-                        $("#i-video-state").removeClass("fa-play");
-                        $("#i-video-state").addClass("fa-pause");
-                        $("#i-video-state").css({ "color": "gray" });
+                    if ($videoState.hasClass('fa-play')) {
+                        $videoState.removeClass('fa-play')
+                            .addClass('fa-pause')
+                            .css({ color: 'gray' });
                     }
                 }
             }
@@ -351,24 +366,23 @@ function loadRoomContent() {
 }
 
 function enterRoom(room) {
-    let loggedUserRef = database.ref("/users").child(loggedUser.key);
-    let watchersRef = currentRoomRef.child("watchers");
+    var loggedUserRef = database.ref('/users').child(loggedUser.key);
+    var watchersRef = currentRoomRef.child('watchers');
 
     // update the user's history
     if (loggedUser.roomHistory == undefined) {
         loggedUser.roomHistory = {};
     }
-
     loggedUser.roomHistory[room.id.toString()] = {
         name: room.name,
         dateJoined: getDate()
     };
-    loggedUserRef.child("/roomHistory/").update(loggedUser.roomHistory);
+    loggedUserRef.child('/roomHistory/').update(loggedUser.roomHistory);
 
     // add user to watchers in this room
     // first make sure it isn't already there
-    watchersRef.once("value", function(snapshot) {
-        if (!snapshotHasProperty(snapshot, { "key": loggedUser.key })) {
+    watchersRef.once('value', function(snapshot) {
+        if (!snapshotHasProperty(snapshot, { 'key': loggedUser.key })) {
             watchersRef.push({
                 key: loggedUser.key,
                 name: loggedUser.name,
@@ -380,7 +394,7 @@ function enterRoom(room) {
 
 // send a chat message to the room
 function sendMessage(msg) {
-    let messagesRef = currentRoomRef.child("messages");
+    var messagesRef = currentRoomRef.child('messages');
 
     messagesRef.push({
         sender: loggedUser.key,
@@ -390,30 +404,30 @@ function sendMessage(msg) {
 }
 
 function stateHandler(playerTime, playerState) {
-    let messagesRef = currentRoomRef.child("messages");
-    let currentVideoInfoRef = currentRoomRef.child("currentVideo");
+    var messagesRef = currentRoomRef.child('messages');
+    var currentVideoInfoRef = currentRoomRef.child('currentVideo');
 
     // send to server
     currentVideoInfoRef.update({
-        "time": playerTime,
-        "videoState": playerState.toString(),
-        "actionTriggeredBy": loggedUser.name.toString()
+        'time': playerTime,
+        'videoState': playerState.toString(),
+        'actionTriggeredBy': loggedUser.name.toString()
     });
 }
 
 function getVideoTitle(videoId) {
     // get title
-    let dataUrl = "https://www.googleapis.com/youtube/v3/videos?id=" +
-        videoId.toString() + "&key=" + "AIzaSyDN6w-48JzA4iqou6PqZAob7j6LrTtU0MQ" + "&part=snippet";
+    var dataUrl = 'https://www.googleapis.com/youtube/v3/videos?id=' +
+        videoId.toString() + '&key=' + 'AIzaSyDN6w-48JzA4iqou6PqZAob7j6LrTtU0MQ' + '&part=snippet';
 
-    let json = null;
+    var json = null;
 
     $.ajax({
-        "async": false,
-        "global": false,
-        "url": dataUrl,
-        "dataType": "json",
-        "success": function(data) {
+        'async': false,
+        'global': false,
+        'url': dataUrl,
+        'dataType': 'json',
+        'success': function(data) {
             json = data;
         }
     });

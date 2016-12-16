@@ -19,7 +19,9 @@ $(document).ready(function() {
     database = new firebase.database();
     
     auth.onAuthStateChanged(function(user) {
-        handleLogin(user);
+        if (user !== undefined && user !== null) {
+            handleLogin(user);
+        }
     });
 
     $('#google-login').click(function() {

@@ -1,9 +1,3 @@
-// global variable for current video id
-var youtubeVideoId;
-
-// global variable for video player
-var player = null;
-var youtubePlayerLoaded = false;
 
 var PlayState = {
     NONE: -1,
@@ -11,14 +5,18 @@ var PlayState = {
     PLAYING: 1
 };
 
-// global variable for video play state
-var curState = PlayState.NONE;
+// global video data
+var videoData = {
+    videoId: -1,
+    player: null,
+    playState: PlayState.NONE
+};
 
 function loadYouTubePlayer() {
-    // try parsing youtube video id from the given url
+    // try parsing youtube video id from the url
     $('#submit-youtube-url-button').click(function() {
-        var givenUrl = $('#youtube-url').val();
-        youtubeVideoId = givenUrl.split('v=')[1];
+        var vidUrl = $('#youtube-url').val();
+        videoData.videoId = vidUrl.split('v=')[1];
 
         // create the script element
         var tag = document.createElement('script');
@@ -30,38 +28,36 @@ function loadYouTubePlayer() {
 }
 
 function onYouTubePlayerAPIReady() {
-    player = new YT.Player('player', {
+    videoData.player = new YT.Player('player', {
         height: '100%',
         width: '100%',
         playerVars: {
             controls: 0,
             modestbranding: 0,
         },
-        videoId: youtubeVideoId,
+        videoId: videoData.videoId,
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
-
-    youtubePlayerLoaded = true;
 }
 
 function pauseVideo(shouldSendEvents) {
-    player.pauseVideo();
-    curState = PlayState.PAUSED;
+    videoData.player.pauseVideo();
+    videoData.playState = PlayState.PAUSED;
 
     if (shouldSendEvents) {
-        stateHandler(player.getCurrentTime(), 'paused');
+        stateHandler(videoData.player.getCurrentTime(), 'paused');
     }
 }
 
 function playVideo(shouldSendEvents) {
-    player.playVideo();
-    curState = PlayState.PLAYING;
+    videoData.player.playVideo();
+    videoData.playState = PlayState.PLAYING;
 
     if (shouldSendEvents) {
-        stateHandler(player.getCurrentTime(), 'playing');
+        stateHandler(videoData.player.getCurrentTime(), 'playing');
     }
 }
 
@@ -74,13 +70,14 @@ function onPlayerStateChange(event) {
         return;
     }
 
-    if ((curState == PlayState.NONE || curState == PlayState.PLAYING) && event.data == 2 /*paused*/) {
+    if ((videoData.playState == PlayState.NONE || 
+            videoData.playState == PlayState.PLAYING) && event.data == 2 /*paused*/) {
         // hide the player
         $('#player').hide();
-        stateHandler(player.getCurrentTime(), 'paused');
-
-        curState = PlayState.PAUSED;
-    } else if ((curState == PlayState.NONE || curState == PlayState.PAUSED) && event.data == 1 /*playing*/) {
-        curState = PlayState.PLAYING;
+        stateHandler(videoData.player.getCurrentTime(), 'paused');
+        videoData.playState = PlayState.PAUSED;
+    } else if ((videoData.playState == PlayState.NONE || 
+            videoData.playState == PlayState.PAUSED) && event.data == 1 /*playing*/) {
+        videoData.playState = PlayState.PLAYING;
     }
 }

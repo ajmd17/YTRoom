@@ -2,13 +2,16 @@ function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+// generates a random name for a room using a list of random words
 function generateRoomId() {
     var randString = '';
     var numWords = getRandom(2, 4);
-    for (let i = 0; i < numWords; i++) {
-        let word = words[getRandom(0, words.length)];
+    
+    for (var i = 0; i < numWords; i++) {
+        var word = words[getRandom(0, words.length)];
         randString += word.charAt(0).toUpperCase() + word.slice(1);
     }
+
     return randString;
 }
 
@@ -28,20 +31,20 @@ function snapshotHasProperty(snapshot, attrib) {
     }
 
     var snapshotValue = snapshot.val();
-    if ((snapshotValue !== undefined && snapshotValue !== null) &&
-            Object.keys(snapshotValue).length != 0) {
-
-        var attribKeys = Object.keys(attrib);
-        var attribKey = attribKeys[0].toString();
-        var attribVal = attrib[attribKey];
-
+    if (snapshotValue) {
         var snapshotKeys = Object.keys(snapshotValue);
+        if (snapshotKeys.length) {
+            var attribKeys = Object.keys(attrib);
+            var attribKey = attribKeys[0].toString();
+            var attribVal = attrib[attribKey];
+            var curObject = null;
 
-        for (let i = 0; i < snapshotKeys.length; i++) {
-            let curObject = snapshotValue[snapshotKeys[i]];
-            if (curObject[attribKey] == attribVal) {
-                curObject.key = snapshotKeys[i];
-                return curObject;
+            for (var i = 0; i < snapshotKeys.length; i++) {
+                curObject = snapshotValue[snapshotKeys[i]];
+                if (curObject[attribKey] == attribVal) {
+                    curObject.key = snapshotKeys[i];
+                    return curObject;
+                }
             }
         }
     }

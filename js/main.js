@@ -22,7 +22,7 @@ $(document).ready(function() {
     });
 
     $('#i-video-state').click(function() {
-        if (curState == PlayState.PLAYING) {
+        if (videoData.playState == PlayState.PLAYING) {
             pauseVideo(true);
         } else {
             playVideo(true);
@@ -98,11 +98,10 @@ $(document).ready(function() {
                 // error joining room
                 $('#room-join-error').show();
             } else {
-                let maxWatchers = foundRoom.max;
-                let watchers = foundRoom.watchers;
-                let numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
+                var maxWatchers = foundRoom.max;
+                var watchers = foundRoom.watchers;
+                var numWatchers = (watchers != null) ? Object.keys(watchers).length : 0;
 
-                // TODO: move this to the enterRoom() function.
                 if (numWatchers >= maxWatchers) {
                     // cannot join, room is full
                     $('#room-join-error').show();
@@ -161,14 +160,14 @@ $(document).ready(function() {
             $('#video-input-error').show();
         } else {
             // get the youtube video id
-            var youtubeVideoId = text.split('v=')[1];
+            var videoId = text.split('v=')[1];
 
             // send request to the server
             var queueRef = currentRoomRef.child('queue');
 
             // push the object
             queueRef.push({
-                videoId: youtubeVideoId
+                videoId: videoId
             });
 
             // close this modal
@@ -320,17 +319,15 @@ function loadRoomContent() {
 
             var $videoState = $('#i-video-state');
 
-            if (player === null) {
-                console.log('Error, player was null!');
-            } else if (!youtubePlayerLoaded) {
-                console.log('Error, YouTube player not loaded!');
+            if (!videoData.player) {
+                console.log('Error, videoData.player null or undefined!');
             } else {
-                player.cueVideoById(newVideoId);
+                videoData.player.cueVideoById(newVideoId);
 
                 if (newVideoState == 'playing') {
                     playVideo(false);
                     // seek to location
-                    player.seekTo(newVideoTime, true);
+                    videoData.player.seekTo(newVideoTime, true);
 
                     // show the 'paused' background
                     $('#paused-bg').hide();
@@ -343,7 +340,7 @@ function loadRoomContent() {
                             .css({ color: '#00e673' });
                     }
                 } else if (newVideoState == 'paused') {
-                    player.seekTo(newVideoTime, true);
+                    videoData.player.seekTo(newVideoTime, true);
                     pauseVideo(false);
 
                     // show the 'paused' background

@@ -1,20 +1,27 @@
-$(window).resize(function() {
-    resizeContent();
-});
 
-$(window).on('orientationchange', function() {
-    // remove sidebar
-    if ($('.sidebar').hasClass('opened')) {
-        // re-show content incase it was hidden
-        $('#content').show();
-        $('.sidebar').removeClass('opened');
-        $('.sidebar-panel').css({ 'width': '0', 'display': 'none' });
-    }
-    resizeContent();
-});
 
 // bind sidebar expand events
 $(document).ready(function() {
+    $(window).resize(function() {
+        resizeContent();
+    });
+
+    $(window).on('orientationchange', function() {
+        var $sidebar = $('.sidebar');
+        // remove sidebar
+        if ($sidebar.hasClass('opened')) {
+            // re-show content incase it was hidden
+            $sidebar.removeClass('opened');
+            $('#content').show();
+            $('.sidebar-panel').css({ 
+                'width': '0', 
+                'display': 'none'
+            });
+        }
+        resizeContent();
+    });
+
+    // resize content straight away
     resizeContent();
 
     $('#btn-chat').click(function() {
@@ -23,9 +30,12 @@ $(document).ready(function() {
             $('#content').hide();
         }
 
-        $('#sidebar-title').text('Chat');
         $('.sidebar').addClass('opened');
-        $('#chat-messages').css({ 'width': '100%', 'display': 'block' });
+        $('#sidebar-title').text('Chat');
+        $('#chat-messages').css({ 
+            'width': '100%', 
+            'display': 'block'
+        });
 
         resizeContent();
     });
@@ -36,10 +46,13 @@ $(document).ready(function() {
             $('#content').hide();
         }
 
-        $('#sidebar-title').text('Queue');
         $('.sidebar').addClass('opened');
-        $('#video-queue').css({ 'width': '100%', 'display': 'block' });
+        $('#sidebar-title').text('Queue');
         $('#add-to-queue-btn').show();
+        $('#video-queue').css({ 
+            'width': '100%', 
+            'display': 'block'
+        });
 
         resizeContent();
     });
@@ -50,18 +63,24 @@ $(document).ready(function() {
             $('#content').hide();
         }
 
-        $('#sidebar-title').text('Watchers');
         $('.sidebar').addClass('opened');
-        $('#watchers-list').css({ 'width': '100%', 'display': 'block' });
+        $('#sidebar-title').text('Watchers');
+        $('#watchers-list').css({ 
+            'width': '100%', 
+            'display': 'block' 
+        });
 
         resizeContent();
     });
 
     $('#hide-sidebar').click(function() {
         $('.sidebar').removeClass('opened');
-        $('.sidebar-panel').css({ 'width': '0', 'display': 'none' });
         $('#add-to-queue-btn').hide();
         $('#content').show();
+        $('.sidebar-panel').css({ 
+            'width': '0', 
+            'display': 'none'
+        });
 
         resizeContent();
     });
@@ -78,9 +97,9 @@ function resizeContent() {
 
     // for mobile devices, resize according to screen size.
     // for desktop devices, use browser window size.
-    var playerWidth = screen.width > 600 ? window.innerWidth : screen.width;// > 600 ? windowWidth : windowWidth / 2;
-    var playerHeight = screen.width > 600 ? window.innerHeight : screen.height;// > 600 ? windowWidth : windowWidth / 2;
-    var openedWidth = window.innerWidth > 600 ? 320 : window.innerWidth /*full width*/;
+    var playerWidth = (screen.width > 600) ? window.innerWidth : screen.width;
+    var playerHeight = (screen.width > 600) ? window.innerHeight : screen.height;
+    var openedWidth = (window.innerWidth > 600) ? 320 : window.innerWidth;
     var closedWidth = 60;
 
     var windowWidth = window.innerWidth;

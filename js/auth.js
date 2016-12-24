@@ -1,5 +1,4 @@
 var loggedUser = {};
-
 var auth = null;
 var database = null;
 
@@ -43,20 +42,20 @@ function signInWithTwitter(auth, database) {
 
 function signIn(auth, database, provider) {
     auth.signInWithPopup(provider).then(function(result) {
-        handleLogin(result.user);
+        handleLogin(result);
     }).catch(function(error) {
         alert(error.toString());
     });
 }
 
-function handleLogin(user) {
+function handleLogin(result) {
     var usersRef = database.ref('/users');
 
     usersRef.once('value').then(function(snapshot) {
         var isNewUser = true;
-        var foundUser = snapshotHasProperty(snapshot, { uid: user.uid });
+        var foundUser = snapshotHasProperty(snapshot, { uid: result.uid });
         if (!foundUser) {
-            loggedUser = addNewUser(user.uid, user.displayName, usersRef);
+            loggedUser = addNewUser(result, usersRef);
         } else {
             loggedUser = foundUser;
             isNewUser = false;
@@ -78,8 +77,8 @@ function afterLogin(newUser) {
 
 function addNewUser(result, ref) {
     var user = {
-        name:  result.user.displayName,
-        uid: result.user.uid
+        name:  result.displayName,
+        uid: result.uid
     };
 
     var userRef = ref.push(user);
